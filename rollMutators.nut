@@ -17,13 +17,14 @@
 
 ::spawnMutators <- ["sabotagedCircuits", "forcefulHeadstart"]
 
-::deathMutators <- ["retribution", "lastWhirr"]
+//Retribution retired for the time being
+//::deathMutators <- ["retribution", "lastWhirr"]
 
 ::classMutators <- ["marathon", "freedomania", "inferno", "pandemonium", "ironCurtain", "texasRangers", "germanTechnology",
 	"australiaRules", "chateauBackstab"]
 	
-::mutatorCategories <- [genericMutators, meleeMutators, statusMutators, healthMutators, regenMutators, tankMutators, spawnMutators, deathMutators,
-	classMutators]
+::mutatorCategories <- [genericMutators, meleeMutators, statusMutators, healthMutators, regenMutators, tankMutators, spawnMutators,
+classMutators]
 
 //this could maybe be an enum
 ::descriptions <- {
