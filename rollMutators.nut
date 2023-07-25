@@ -93,8 +93,9 @@
 		local mutatorArray = choiceArray[arrayVal]
 		local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
 		activeMutators.append(mutator)
+		//probably should do something about the fact a given generic mutator could be rolled twice
 		
-		if(mutatorArray != 0) { //not generic mutators, don't want to allow multiple
+		if(mutatorArray != 0) { //if a nongeneric mutator, remove
 			choiceArray.remove(arrayVal)
 		}
 	}
