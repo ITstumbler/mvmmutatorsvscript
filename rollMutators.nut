@@ -66,7 +66,7 @@ classMutators]
 	"divineSeal": "Divine Seal: Non-boss robots recover all health when not damaged for 5 seconds"
 	"allOutOffense": "All-Out Offense: Robots gain crits and -50% max health. Robots with innate crits gain 2x damage instead"
 	"acceleratedDevelopment": "Accelerated Development: Robots gain bomb buffs very quickly. Giants can also get bomb buffs"
-	"lastWhirr": "Last Whirr: Robots explode on death, dealing 25 damage to all nearby players"
+	//"lastWhirr": "Last Whirr: Robots explode on death, dealing 25 damage to all nearby players"
 	"forcefulHeadstart": "Forceful Headstart: Robots gain 3 seconds of uber upon exiting spawn"
 	"selfRepair": "Self-Repair: Robots gain 25 health regen"
 	"terrifyingTitans": "Terrifying Titans: Giant robots deal 1.25x damage"
@@ -93,10 +93,13 @@ classMutators]
 		local arrayVal = RandomInt(0, choiceArray.len() - 1)
 		local mutatorArray = choiceArray[arrayVal]
 		local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
-		activeMutators.append(mutator)
-		//probably should do something about the fact a given generic mutator could be rolled twice
 		
-		if(mutatorArray != 0) { //if a nongeneric mutator, remove
+		while(mutator in activeMutators) { //keep rerolling till we get a new one for generic mutators
+			mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+		}
+		activeMutators.append(mutator)
+		
+		if(arrayVal != 0) { //if a nongeneric mutator, remove
 			choiceArray.remove(arrayVal)
 		}
 	}
