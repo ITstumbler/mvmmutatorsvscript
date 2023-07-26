@@ -88,6 +88,7 @@ classMutators]
 ::rollMutators <- function() {
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
+	activeMutators = []
 	
 	for(local i = 0; i < RandomInt(1, 3); i++) {
 		local arrayVal = RandomInt(0, choiceArray.len() - 1)
