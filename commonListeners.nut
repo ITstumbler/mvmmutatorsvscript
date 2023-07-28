@@ -1,8 +1,17 @@
+::missionName <- null
+::rerollMutators <- true
+
+//on mutator -> non mutator = end
+
 function OnGameEvent_mvm_reset_stats(params) {
 	local objResource = Entities.FindByName(null, "tf_objective_resource")
-	if(NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) {
-		//this currently allows rerolls at wave fail w1 / wave jump w1
-		//alternative option is listening to a vote event + mission complete
+	if(rerollMutators && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) {
+		//this should ignore wave jumping and wave fails
 		rollMutators()
 	}
+	rerollMutators = true
+}
+
+function OnGameEvent_mvm_wave_failed(params) {
+	rerollMutators = false
 }
