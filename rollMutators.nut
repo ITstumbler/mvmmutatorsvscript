@@ -1,3 +1,4 @@
+foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
 //maybe rename
 ::genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
 	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
@@ -82,7 +83,13 @@ classMutators]
 	"inflammableSkin": {description = "\x07f70505Inflammable Skin: Burning players are Marked for Death", points = 1000}
 	"purifyingEmblem": {description = "\x07f70505Purifying Emblem: Robots are immune to all status effects", points = 2500}
 }
-	
+
+//list of params for various mutators
+::mutatorParams <- {
+	septicTankRadius = 0
+	acceleratedDevelopmentMultiplier = 0.5
+}
+
 ::activeMutators <- []
 	
 ::rollMutators <- function() {
