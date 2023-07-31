@@ -86,8 +86,10 @@ classMutators]
 
 //list of params for various mutators
 ::mutatorParams <- {
-	septicTankRadius = 0
-	acceleratedDevelopmentMultiplier = 0.5
+	septicTank_radius = 0
+	acceleratedDevelopment_multiplier = 0.5
+	sabotagedCircuits_duration = 1
+	forcefulHeadstart_duration = 3
 }
 
 ::activeMutators <- []

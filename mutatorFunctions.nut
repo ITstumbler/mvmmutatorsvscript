@@ -1,6 +1,3 @@
-local sabotagedCircuits_duration = 1
-local forcefulHeadstart_duration = 3
-
 ::tripleBombs <- function() {
 	if(Entities.FindByName(null, "mutatorBomb1") != null) {
 		return;
@@ -37,7 +34,7 @@ local forcefulHeadstart_duration = 3
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "+sabotagedCircuits_duration+", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "+mutatorParams.sabotagedCircuits_duration+", null)", 0, -1)
 	}
 }
 
@@ -49,16 +46,16 @@ local forcefulHeadstart_duration = 3
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "+forcefulHeadstart_duration+", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "+mutatorParams.forcefulHeadstart_duration+", null)", 0, -1)
 	}
 }
 
 ::acceleratedDevelopment <- function() {
 	local flag = null
 
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutatorParams.acceleratedDevelopmentMultiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutatorParams.acceleratedDevelopmentMultiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutatorParams.acceleratedDevelopmentMultiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
 	
 	while(flag = Entities.FindByClassname(flag, "item_teamflag")) {
 		EntityOutputs.AddOutput(flag, "OnPickup1", "!activator", "RunScriptCode", "acceleratedDevelopmentAddBuffs(self)", 0, -1)
