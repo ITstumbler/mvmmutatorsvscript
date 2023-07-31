@@ -1,3 +1,6 @@
+local sabotagedCircuits_duration = 1
+local forcefulHeadstart_duration = 3
+
 ::tripleBombs <- function() {
 	if(Entities.FindByName(null, "mutatorBomb1") != null) {
 		return;
@@ -34,7 +37,7 @@
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, 1, null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "+sabotagedCircuits_duration+", null)", 0, -1)
 	}
 }
 
@@ -46,7 +49,7 @@
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, 3, null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "+forcefulHeadstart_duration+", null)", 0, -1)
 	}
 }
 

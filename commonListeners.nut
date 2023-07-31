@@ -15,3 +15,10 @@ function OnGameEvent_mvm_reset_stats(params) {
 function OnGameEvent_mvm_wave_failed(params) {
 	rerollMutators = false
 }
+
+//Used by Divine Seal
+function OnGameEvent_player_hurt(params) {
+	
+}
+
+__CollectGameEventCallbacks(this)
