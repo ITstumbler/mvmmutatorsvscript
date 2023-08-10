@@ -1,4 +1,6 @@
 foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
+::MaxPlayers <- MaxClients().tointeger();
+
 //maybe rename
 ::genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
 	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
@@ -93,11 +95,35 @@ classMutators]
 }
 
 ::activeMutators <- []
-	
+
+::initPlayers <- function() {
+	for (local i = 1; i <= MaxPlayers ; i++) {
+		local player = PlayerInstanceFromIndex(i)
+		if(player == null) continue
+		if(IsPlayerABot(player)) continue
+		//may need to change this depending on mutators
+		
+		player.ValidateScriptScope()
+		local scope = player.GetScriptScope()
+		
+		DoIncludeScript("mvmmutatorsvscript/playerMutatorFunctions.nut", scope)
+		scope.funcs <- {}
+		
+		scope.think <- function() {
+			foreach(key, func in funcs) {
+				func()
+			}
+		}
+	}
+}
+
+
 ::rollMutators <- function() {
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
 	activeMutators = []
+	
+	initPlayers()
 	
 	for(local i = 0; i < RandomInt(1, 3); i++) {
 		local arrayVal = RandomInt(0, choiceArray.len() - 1)
@@ -117,5 +143,52 @@ classMutators]
 	ClientPrint(null, 3, "The mission's mutators are:")
 	foreach(mutator in activeMutators) {
 		ClientPrint(null, 3, descriptions[mutator].description)
+	}
+	
+	for (local i = 1; i <= MaxPlayers ; i++) {
+		local player = PlayerInstanceFromIndex(i)
+		if(player == null) continue
+		if(IsPlayerABot(player)) continue
+		
+		local scope = player.GetScriptScope()
+		
+		foreach(mutator in activeMutators) {
+			scope.funcs[mutator] <- scope[mutator] //string, function 
+		}
+		
+		AddThinkToEnt(player, "think")
+	}
+}
+
+::debugAddSpecificMutators <- function(mutator1, mutator2, mutator3) {
+	activeMutators = []
+	
+	initPlayers()
+	
+	activeMutators.append(mutator1)
+	if(mutator2 != null) {
+		activeMutators.append(mutator2)
+	}
+	if(mutator3 != null) {
+		activeMutators.append(mutator3)
+	}
+	
+	ClientPrint(null, 3, "The mission's mutators are:")
+	foreach(mutator in activeMutators) {
+		ClientPrint(null, 3, descriptions[mutator].description)
+	}
+	
+	for (local i = 1; i <= MaxPlayers ; i++) {
+		local player = PlayerInstanceFromIndex(i)
+		if(player == null) continue
+		if(IsPlayerABot(player)) continue
+		
+		local scope = player.GetScriptScope()
+		
+		foreach(mutator in activeMutators) {
+			scope.funcs[mutator] <- scope[mutator] //string, function 
+		}
+		
+		AddThinkToEnt(player, "think")
 	}
 }
