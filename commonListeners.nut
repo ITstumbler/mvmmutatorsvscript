@@ -18,7 +18,23 @@ function OnGameEvent_mvm_wave_failed(params) {
 
 //Used by Divine Seal
 function OnGameEvent_player_hurt(params) {
+}
 	
+function OnGameEvent_player_spawn(params) {
+	
+	if(activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
+		if(IsPlayerABot(player)) {
+			//use entfire to ensure bot stuff is applied
+			EntFireByHandle(player, "RunScriptCode", "allOutOffense(activator)", -1, player, null)
+		}
+	}
+}
+
+function OnGameEvent_player_death(params) {
+
+	if(activateMutators.find("allOrNothing") != null) {
+		mutatorParams.totalAllOrNothingCurrency = mutatorParams.totalAllOrNothingCurrency + mutatorParams.waveAllOrNothingCurrency
+	}
 }
 
 __CollectGameEventCallbacks(this)

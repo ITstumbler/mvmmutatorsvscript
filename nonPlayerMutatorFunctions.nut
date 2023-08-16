@@ -50,6 +50,24 @@
 	}
 }
 
+::allOutOffense <- function(bot) {
+	if(bot.HasBotAttribute(ALWAYS_CRIT)) {
+		bot.AddCustomAttribute("CARD: damage bonus", 2, -1)
+	}
+	else {
+		bot.AddBotAttribute(ALWAYS_CRIT)
+		bot.SetHealth(bot.GetMaxHealth() / 2)
+		bot.SetMaxHealth(bot.GetMaxHealth() / 2)
+		//NetProps.SetPropInt(bot, "m_iMaxHealth", bot.GetMaxHealth() / 2)
+		
+		printl(bot.GetMaxHealth())
+	}
+}
+
+::allOrNothing <- function() {
+	Convars.SetValue("tf_mvm_death_penalty", mutatorParams.allOrNothingPenalty)
+}
+
 ::acceleratedDevelopment <- function() {
 	local flag = null
 

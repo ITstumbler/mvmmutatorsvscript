@@ -1,4 +1,7 @@
 //due to scoping issues, these need to be within player scopes
+local scope = self.GetScriptScope()
+scope.allOrNothingTotalPenalty = 0
+scope.allOrNothingWavePenalty = 0
 
 function guerillaWarfare() {
 	//printl("guerilla")
@@ -14,7 +17,10 @@ function guerillaWarfareOff() {
 	
 	//printl("guerillaoff")
 	//printl(self.GetScriptScope().count)
-	if(self.GetScriptScope().count > 50) {
+	if(NetProps.GetPropInt(self, "m_nButtons") & IN_ATTACK1) { //attacking, reset the counter
+		self.GetScriptScope().count = 0
+	}
+	else if(self.GetScriptScope().count > 50) {
 		self.AddCondEx(TF_COND_STEALTHED_USER_BUFF, -1, null)
 		delete self.GetScriptScope().funcs["guerillaWarfareOff"]
 		self.GetScriptScope().funcs["guerillaWarfare"] <- guerillaWarfare

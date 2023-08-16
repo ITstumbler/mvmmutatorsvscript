@@ -92,10 +92,16 @@ classMutators]
 	acceleratedDevelopment_multiplier = 0.5
 	sabotagedCircuits_duration = 1
 	forcefulHeadstart_duration = 3
+	//acceleratedDevelopmentMultiplier = 0.5
+	allOrNothingPenalty = 400
+	totalAllOrNothingCurrency = 0
+	waveAllOrNothingCurrency = 0
 }
 
 ::activeMutators <- []
 
+IncludeScript("mvmmutatorsvscript/commonListeners.nut")
+IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 ::initPlayers <- function() {
 	for (local i = 1; i <= MaxPlayers ; i++) {
 		local player = PlayerInstanceFromIndex(i)
@@ -186,9 +192,10 @@ classMutators]
 		local scope = player.GetScriptScope()
 		
 		foreach(mutator in activeMutators) {
-			scope.funcs[mutator] <- scope[mutator] //string, function 
+			if(mutator in scope) {
+				scope.funcs[mutator] <- scope[mutator] //string, function 
+			}
 		}
-		
 		AddThinkToEnt(player, "think")
 	}
 }
