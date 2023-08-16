@@ -92,6 +92,7 @@ classMutators]
 	acceleratedDevelopment_multiplier = 0.5
 	sabotagedCircuits_duration = 1
 	forcefulHeadstart_duration = 3
+	//septicTankRadius = 0
 	//acceleratedDevelopmentMultiplier = 0.5
 	allOrNothingPenalty = 400
 	totalAllOrNothingCurrency = 0
@@ -102,6 +103,7 @@ classMutators]
 
 IncludeScript("mvmmutatorsvscript/commonListeners.nut")
 IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
+
 ::initPlayers <- function() {
 	for (local i = 1; i <= MaxPlayers ; i++) {
 		local player = PlayerInstanceFromIndex(i)

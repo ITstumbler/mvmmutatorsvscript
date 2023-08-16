@@ -18,9 +18,11 @@ function OnGameEvent_mvm_wave_failed(params) {
 
 //Used by Divine Seal
 function OnGameEvent_player_hurt(params) {
+
 }
 	
 function OnGameEvent_player_spawn(params) {
+	local player = GetPlayerFromUserID(params.userid)
 	
 	if(activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
 		if(IsPlayerABot(player)) {
@@ -32,6 +34,10 @@ function OnGameEvent_player_spawn(params) {
 
 function OnGameEvent_player_death(params) {
 
+	//if(activateMutators.find(
+}
+
+function OnGameEvent_mvm_wave_complete(params) {
 	if(activateMutators.find("allOrNothing") != null) {
 		mutatorParams.totalAllOrNothingCurrency = mutatorParams.totalAllOrNothingCurrency + mutatorParams.waveAllOrNothingCurrency
 	}
