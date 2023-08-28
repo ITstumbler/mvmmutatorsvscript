@@ -1,5 +1,12 @@
 foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
-::MaxPlayers <- MaxClients().tointeger();
+::maxPlayers <- MaxClients().tointeger()
+::objResource <- Entities.FindByClassname(null, "tf_objective_resource")
+::players <- {}
+//way to force bots to taunt by ficool
+::tauntSandvich <- Entities.CreateByClassname("tf_weapon_lunchbox")
+NetProps.SetPropInt(tauntSandvich, "m_AttributeManager.m_Item.m_iItemDefinitionIndex", 42)
+NetProps.SetPropBool(tauntSandvich, "m_AttributeManager.m_Item.m_bInitialized", true)
+tauntSandvich.DispatchSpawn()
 
 //maybe rename
 ::genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
@@ -99,32 +106,41 @@ classMutators]
 	waveAllOrNothingCurrency = 0
 }
 
+::convarsToReset <- { //unsurprisingly these persist through rounds
+	"tf_mvm_bot_flag_carrier_interval_to_1st_upgrade": Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade")
+	"tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade": Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade")
+	"tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade": Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade")
+}
+
 ::activeMutators <- []
 
 IncludeScript("mvmmutatorsvscript/commonListeners.nut")
 IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 
 ::initPlayers <- function() {
-	for (local i = 1; i <= MaxPlayers ; i++) {
+	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		if(IsPlayerABot(player)) continue
+		//if(IsPlayerABot(player)) continue
 		//may need to change this depending on mutators
+		
+		if(!IsPlayerABot(player)) {
+			players[i] <- player
+		}
 		
 		player.ValidateScriptScope()
 		local scope = player.GetScriptScope()
 		
 		DoIncludeScript("mvmmutatorsvscript/playerMutatorFunctions.nut", scope)
-		scope.funcs <- {}
+		scope.thinkFunctions <- {}
 		
 		scope.think <- function() {
-			foreach(key, func in funcs) {
+			foreach(key, func in thinkFunctions) {
 				func()
 			}
 		}
 	}
 }
-
 
 ::rollMutators <- function() {
 	local choiceArray = []
@@ -153,7 +169,7 @@ IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 		ClientPrint(null, 3, descriptions[mutator].description)
 	}
 	
-	for (local i = 1; i <= MaxPlayers ; i++) {
+	for (local i = 1; i <= maxPlayers ; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
 		if(IsPlayerABot(player)) continue
@@ -161,7 +177,7 @@ IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 		local scope = player.GetScriptScope()
 		
 		foreach(mutator in activeMutators) {
-			scope.funcs[mutator] <- scope[mutator] //string, function 
+			scope.thinkFunctions[mutator] <- scope[mutator] //string, function 
 		}
 		
 		AddThinkToEnt(player, "think")
@@ -186,7 +202,7 @@ IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 		ClientPrint(null, 3, descriptions[mutator].description)
 	}
 	
-	for (local i = 1; i <= MaxPlayers ; i++) {
+	for (local i = 1; i <= maxPlayers ; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
 		if(IsPlayerABot(player)) continue
@@ -195,7 +211,7 @@ IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 		
 		foreach(mutator in activeMutators) {
 			if(mutator in scope) {
-				scope.funcs[mutator] <- scope[mutator] //string, function 
+				scope.thinkFunctions[mutator] <- scope[mutator] //string, function 
 			}
 		}
 		AddThinkToEnt(player, "think")

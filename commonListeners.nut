@@ -24,12 +24,22 @@ function OnGameEvent_player_hurt(params) {
 function OnGameEvent_player_spawn(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
+	if(!(player.GetEntityIndex() in players)) {
+		players[player.GetEntityIndex()] <- player
+	}
+	
 	if(activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
 		if(IsPlayerABot(player)) {
 			//use entfire to ensure bot stuff is applied
 			EntFireByHandle(player, "RunScriptCode", "allOutOffense(activator)", -1, player, null)
 		}
 	}
+}
+
+function OnGameEvent_player_disconnect(params) {
+	local player = GetPlayerFromUserID(params.userid)
+	
+	delete players[player.GetEntityIndex()]
 }
 
 function OnGameEvent_player_death(params) {
