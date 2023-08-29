@@ -20,7 +20,7 @@ function guerillaWarfareOff() {
 	if(NetProps.GetPropInt(self, "m_nButtons") & IN_ATTACK1) { //attacking, reset the counter
 		self.GetScriptScope().count = 0
 	}
-	else if(self.GetScriptScope().count >= 50) {
+	else if(self.GetScriptScope().count >= COUNTER) {
 		self.AddCondEx(TF_COND_STEALTHED_USER_BUFF, -1, null)
 		delete self.GetScriptScope().funcs["guerillaWarfareOff"]
 		self.GetScriptScope().funcs["guerillaWarfare"] <- guerillaWarfare
@@ -39,10 +39,6 @@ function acceleratedDevelopmentHasBomb() {
 	
 	NetProps.SetPropString(self, "m_iName", self.GetEntityIndex().tostring())
 	
-	//once again this assume the default think of .1
-	scope.upgradeTime <- Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade") / 0.1
-	printl(upgradeTime)
-	
 	local targetName = UniqueString()
 	local particleAttachment = SpawnEntityFromTable("info_target", {targetname = targetName})
 	EntFire(targetName, "SetParent", self.GetEntityIndex().tostring(), -1)
@@ -56,6 +52,8 @@ function acceleratedDevelopmentHasBomb() {
 	NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
 		+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade"))
 	
+	scope.upgradeTime <- NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+	
 	scope.thinkFunctions["acceleratedDevelopmentThink"] <- scope["acceleratedDevelopmentThink"]
 }
 
@@ -68,13 +66,15 @@ function acceleratedDevelopmentThink() {
 		printl("in spawnroom, haven't started timer")
 		NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
 		NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
-			+ upgradeTime * 0.1)
+			+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade"))
+		upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
 		return;
 	}
 	
-	//printl(Time())
-	printl(NetProps.GetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime"))
+	printl(Time())
+	//printl(NetProps.GetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime"))
 	printl(NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime"))
+	//printl(NetProps.GetPropInt(objResource, "m_nFlagCarrierUpgradeLevel"))
 	
 	//if dead, stop this func
 	if(NetProps.GetPropInt(self, "m_lifeState") != 0) {
@@ -84,39 +84,47 @@ function acceleratedDevelopmentThink() {
 		return;
 	}
 	
-	if(upgradeTime <= 0) { //enough time has passed, time to upgrade
+	//ent_fire player runscriptcode "AddThinkToEnt(self, `think`)"
+	
+	if(Time() >= upgradeTime) { //enough time has passed, time to upgrade
 		local upgradeLevel = NetProps.GetPropInt(objResource, "m_nFlagCarrierUpgradeLevel")
 		if(upgradeLevel < 3) {
 			EntFire("tf_gamerules", "PlayVO", "MVM.Warning", -1)
 		
 			switch(upgradeLevel) {
-				case 0:
-					local nextUpgradeInterval = Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade")
-					upgradeTime = nextUpgradeInterval / 0.1
-					
+				case 0:				
+					//may need to make sure this can't end up in a race condition
 					NetProps.SetPropEntity(tauntSandvich, "m_hOwner", self);
 					tauntSandvich.PrimaryAttack();
 					
 					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 1)
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() + nextUpgradeInterval)
+					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+						+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade"))
+					
+					upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+					
 					foreach(i, player in players) {
+						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade1:1", -1, null, null)
+						//the concept rules handle the chance
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE1", -1, null, null)
 					}
 					DispatchParticleEffect("mvm_levelup1", particleTarget.GetOrigin(), Vector(0, 0, 0))
-					buffTimer = 10
+					buffTimer = Time()
 					break;
 				case 1:
-					local nextUpgradeInterval = Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade")
-					upgradeTime = nextUpgradeInterval / 0.1
-					
 					NetProps.SetPropEntity(tauntSandvich, "m_hOwner", self);
 					tauntSandvich.PrimaryAttack();
 					
 					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 2)
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() + nextUpgradeInterval)
+					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+						+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade"))
+					
+					upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+					
 					foreach(i, player in players) {
+						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade2:1", -1, null, null)
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE2", -1, null, null)
 					}
 					DispatchParticleEffect("mvm_levelup2", particleTarget.GetOrigin(), Vector(0, 0, 0))
@@ -130,6 +138,7 @@ function acceleratedDevelopmentThink() {
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", -1)
 					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", -1)
 					foreach(i, player in players) {
+						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade3:1", -1, null, null)
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE3", -1, null, null)
 					}
 					DispatchParticleEffect("mvm_levelup3", particleTarget.GetOrigin(), Vector(0, 0, 0))
@@ -140,22 +149,16 @@ function acceleratedDevelopmentThink() {
 			}
 		}
 	}
-	else {
-		upgradeTime--
-	}
 	
 	if(buffTimer != null) {
-		if(buffTimer <= 0) {
+		if(Time() >= buffTimer) {
 			local player = null
 			while(player = Entities.FindByClassnameWithin(player, "player", self.GetOrigin(), 450)) {
 				if(player.GetTeam() == TF_TEAM_BLUE) {
 					player.AddCondEx(TF_COND_DEFENSEBUFF_NO_CRIT_BLOCK, 1.1, null)
 				}
 			}
-			buffTimer = 10
-		}
-		else {
-			buffTimer--
+			buffTimer = Time() + 1.1
 		}
 	}
 }

@@ -34,7 +34,7 @@
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "+mutatorParams.sabotagedCircuits_duration+", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "mutatorParams.sabotagedCircuits_duration", null)", 0, -1)
 	}
 }
 
@@ -46,7 +46,7 @@
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "+mutatorParams.forcefulHeadstart_duration+", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "mutatorParams.forcefulHeadstart_duration", null)", 0, -1)
 	}
 }
 
@@ -57,10 +57,9 @@
 	else {
 		bot.AddBotAttribute(ALWAYS_CRIT)
 		bot.SetHealth(bot.GetMaxHealth() / 2)
-		bot.SetMaxHealth(bot.GetMaxHealth() / 2)
-		//NetProps.SetPropInt(bot, "m_iMaxHealth", bot.GetMaxHealth() / 2)
+		bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() / 2), -1)
 		
-		printl(bot.GetMaxHealth())
+		//printl(bot.GetMaxHealth())
 	}
 }
 
