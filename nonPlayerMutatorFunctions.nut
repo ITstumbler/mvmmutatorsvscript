@@ -1,6 +1,6 @@
 //anything that doesn't need to be in player scope
 
-::tripleBombs <- function() {
+function mutators::tripleBombs() {
 	if(Entities.FindByName(null, "mutatorBomb1") != null) {
 		return;
 	}
@@ -26,7 +26,7 @@
 	})
 }
 
-::sabotagedCircuits <- function() {
+function mutators::sabotagedCircuits() {
 	local bluRespawn = null;
 	
 	//may need to check if this exists already
@@ -38,7 +38,7 @@
 	}
 }
 
-::forcefulHeadstart <- function() {
+function mutators::forcefulHeadstart() {
 	local bluRespawn = null;
 	
 	//make sure uber doesn't conflict with 51
@@ -50,7 +50,7 @@
 	}
 }
 
-::allOutOffense <- function(bot) {
+function mutators::allOutOffense(bot) {
 	if(bot.HasBotAttribute(ALWAYS_CRIT)) {
 		bot.AddCustomAttribute("CARD: damage bonus", 2, -1)
 	}
@@ -67,7 +67,7 @@
 	
 }
 
-::acceleratedDevelopment <- function() {
+function mutators::acceleratedDevelopment() {
 	local flag = null
 
 	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutatorParams.acceleratedDevelopment_multiplier)
