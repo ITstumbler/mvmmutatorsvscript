@@ -23,7 +23,7 @@ function OnGameEvent_player_hurt(params) {
 function OnGameEvent_player_spawn(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	if(!(player.GetEntityIndex() in players)) { //if player is not in table
+	if(!(player.GetEntityIndex() in mutators.players)) { //if player is not in table
 		mutators.players[player.GetEntityIndex()] <- player
 		
 		mutators.initPlayer(player)
@@ -53,7 +53,7 @@ function OnGameEvent_player_death(params) {
 		if(player.GetTeam() == TF_TEAM_BLUE) {
 			local victim = null
 			
-			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutatorParams.lastWhirrRadius)) {
+			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutators.mutatorParams.lastWhirrRadius)) {
 				if(victim.GetTeam() == TF_TEAM_RED) {
 					local distance = (victim.GetCenter() - player.GetCenter()).Length()
 					local shouldDamage = true

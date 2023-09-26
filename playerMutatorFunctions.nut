@@ -7,8 +7,8 @@ function guerillaWarfare() {
 	//printl("guerilla")
 	if(!self.InCond(TF_COND_STEALTHED_USER_BUFF)) {
 		self.GetScriptScope().guerillaTimer <- Time() + 5
-		delete self.GetScriptScope().funcs["guerillaWarfare"]
-		self.GetScriptScope().funcs["guerillaWarfareOff"] <- guerillaWarfareOff
+		delete self.GetScriptScope().thinkFunctions["guerillaWarfare"]
+		self.GetScriptScope().thinkFunctions["guerillaWarfareOff"] <- guerillaWarfareOff
 	}
 }
 
@@ -20,8 +20,8 @@ function guerillaWarfareOff() {
 	}
 	else if(Time() >= guerillaTimer) {
 		self.AddCondEx(TF_COND_STEALTHED_USER_BUFF, -1, null)
-		delete self.GetScriptScope().funcs["guerillaWarfareOff"]
-		self.GetScriptScope().funcs["guerillaWarfare"] <- guerillaWarfare
+		delete self.GetScriptScope().thinkFunctions["guerillaWarfareOff"]
+		self.GetScriptScope().thinkFunctions["guerillaWarfare"] <- guerillaWarfare
 	}
 }
 
@@ -73,7 +73,7 @@ function acceleratedDevelopmentThink() {
 	
 	//if dead, stop this func
 	if(NetProps.GetPropInt(self, "m_lifeState") != 0) {
-		delete funcs["acceleratedDevelopmentThink"]
+		delete thinkFunctions["acceleratedDevelopmentThink"]
 		delete buffTimer
 		particleTarget.Kill()
 		return;
