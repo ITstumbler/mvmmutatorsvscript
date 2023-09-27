@@ -36,8 +36,9 @@ mutators.deathMutators <- ["lastWhirr"]
 mutators.classMutators <- ["marathon", "freedomania", "inferno", "pandemonium", "ironCurtain", "texasRangers", "germanTechnology",
 	"australiaRules", "chateauBackstab"]
 	
-mutators.mutatorCategories <- [genericMutators, meleeMutators, statusMutators, healthMutators, regenMutators, tankMutators, spawnMutators,
-classMutators]
+mutators.mutatorCategories <- [mutators.genericMutators, mutators.meleeMutators, mutators.statusMutators,
+mutators.healthMutators, mutators.regenMutators, mutators.tankMutators, mutators.spawnMutators,
+mutators.classMutators]
 
 //this could maybe be an enum
 mutators.descriptions <- {
