@@ -17,7 +17,14 @@ function OnGameEvent_mvm_wave_failed(params) {
 
 //Used by Divine Seal
 function OnGameEvent_player_hurt(params) {
-
+	if(mutators.activeMutators.find("divineSeal") != null) {
+		local player = GetPlayerFromUserID(params.userid)
+		if(IsPlayerABot(player)) {
+			self.GetScriptScope().divineSealTimer <- Time() + 5
+			self.GetScriptScope().divineSealCurrentlyHealing <- true
+			EntFireByHandle(player, "RunScriptCode", "divineSeal(activator)", -1, player, null)
+		}
+	}
 }
 	
 function OnGameEvent_player_spawn(params) {

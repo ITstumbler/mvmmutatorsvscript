@@ -3,6 +3,15 @@ local scope = self.GetScriptScope()
 scope.allOrNothingTotalPenalty <- 0
 scope.allOrNothingWavePenalty <- 0
 
+function divineSeal() {
+	printl("divine sealing rn")
+	if(self.GetScriptScope().divineSealCurrentlyHealing && Time() >= self.GetScriptScope().divineSealTimer) {
+		self.GetScriptScope().divineSealCurrentlyHealing <- false
+		self.SetHealth(self.GetMaxHealth)
+		//self.GetScriptScope().divineSealTimer <- Time() + 5
+	}
+}
+
 function guerillaWarfare() {
 	//printl("guerilla")
 	if(!self.InCond(TF_COND_STEALTHED_USER_BUFF)) {
