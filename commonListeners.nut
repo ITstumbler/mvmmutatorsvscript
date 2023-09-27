@@ -20,8 +20,8 @@ function OnGameEvent_player_hurt(params) {
 	if(mutators.activeMutators.find("divineSeal") != null) {
 		local player = GetPlayerFromUserID(params.userid)
 		if(IsPlayerABot(player)) {
-			self.GetScriptScope().divineSealTimer <- Time() + 5
-			self.GetScriptScope().divineSealCurrentlyHealing <- true
+			player.GetScriptScope().divineSealTimer <- Time() + 5
+			player.GetScriptScope().divineSealCurrentlyHealing <- true
 			EntFireByHandle(player, "RunScriptCode", "divineSeal(activator)", -1, player, null)
 		}
 	}
