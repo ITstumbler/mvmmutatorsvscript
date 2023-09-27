@@ -5,6 +5,7 @@ foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getrootta
 mutators.maxPlayers <- MaxClients().tointeger()
 mutators.objResource <- Entities.FindByClassname(null, "tf_objective_resource")
 mutators.players <- {}
+
 //way to force bots to taunt by ficool
 mutators.tauntSandvich <- Entities.CreateByClassname("tf_weapon_lunchbox")
 NetProps.SetPropInt(mutators.tauntSandvich, "m_AttributeManager.m_Item.m_iItemDefinitionIndex", 42)
@@ -37,8 +38,8 @@ mutators.classMutators <- ["marathon", "freedomania", "inferno", "pandemonium", 
 	"australiaRules", "chateauBackstab"]
 	
 mutators.mutatorCategories <- [mutators.genericMutators, mutators.meleeMutators, mutators.statusMutators,
-mutators.healthMutators, mutators.regenMutators, mutators.tankMutators, mutators.spawnMutators,
-mutators.classMutators]
+	mutators.healthMutators, mutators.regenMutators, mutators.tankMutators, mutators.spawnMutators,
+	mutators.classMutators]
 
 //this could maybe be an enum
 mutators.descriptions <- {
@@ -128,21 +129,10 @@ function mutators::initPlayer(player) {
 	player.ValidateScriptScope()
 	local scope = player.GetScriptScope()
 	
-	DoIncludeScript("mvmmutatorsvscript/playerMutatorFunctions.nut", scope)
-	scope.thinkFunctions <- {}
-	
-	scope.think <- function() {
-		foreach(key, func in thinkFunctions) {
-			func()
-		}
-	}
+	IncludeScript("mvmmutatorsvscript/playerMutatorFunctions.nut", scope)
 }
 
-function mutators::rollMutators() {
-	rollMutators(null, null, null)
-}
-
-function mutators::rollMutators(mutator1, mutator2, mutator3) {
+function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
 	activeMutators = []
@@ -155,9 +145,15 @@ function mutators::rollMutators(mutator1, mutator2, mutator3) {
 		
 		if(!IsPlayerABot(player)) {
 			players[i] <- player
+			
+			initPlayer(player)
 		}
-		
-		initPlayer(player)
+		else {
+			player.ValidateScriptScope()
+			local scope = player.GetScriptScope()
+	
+			IncludeScript("mvmmutatorsvscript/botMutatorFunctions.nut", scope)
+		}
 	}
 	
 	if(mutator1 != null) { //force mutators
@@ -194,7 +190,7 @@ function mutators::rollMutators(mutator1, mutator2, mutator3) {
 	for (local i = 1; i <= maxPlayers ; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		if(IsPlayerABot(player)) continue
+		//if(IsPlayerABot(player)) continue
 		
 		local scope = player.GetScriptScope()
 		
@@ -205,6 +201,7 @@ function mutators::rollMutators(mutator1, mutator2, mutator3) {
 		}
 		AddThinkToEnt(player, "think")
 	}
+	//to do: need to run one time non player functions somehow (make a specific array of them?)
 }
 
 //reset to default, dump everything

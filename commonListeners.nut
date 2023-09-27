@@ -19,10 +19,10 @@ function OnGameEvent_mvm_wave_failed(params) {
 function OnGameEvent_player_hurt(params) {
 	if(mutators.activeMutators.find("divineSeal") != null) {
 		local player = GetPlayerFromUserID(params.userid)
-		if(IsPlayerABot(player)) {
-			player.GetScriptScope().divineSealTimer <- Time() + 5
-			player.GetScriptScope().divineSealCurrentlyHealing <- true
-			EntFireByHandle(player, "RunScriptCode", "divineSeal(activator)", -1, player, null)
+		//threshold prob should be a var
+		if(IsPlayerABot(player) && player.GetMaxHealth() > 300 && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
+			player.GetScriptScope().divineSealTimer = Time() + 5
+			player.GetScriptScope().divineSealCurrentlyHealing = true
 		}
 	}
 }
@@ -40,7 +40,7 @@ function OnGameEvent_player_spawn(params) {
 	if(mutators.activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
 		if(IsPlayerABot(player)) {
 			//use entfire to ensure bot stuff is applied
-			EntFireByHandle(player, "RunScriptCode", "allOutOffense(activator)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.allOutOffense(activator)", -1, player, null)
 		}
 	}
 }
@@ -93,7 +93,8 @@ function OnGameEvent_player_death(params) {
 
 function OnGameEvent_mvm_wave_complete(params) {
 	if(mutators.activeMutators.find("allOrNothing") != null) {
-		mutators.mutatorParams.totalAllOrNothingCurrency = mutators.mutatorParams.totalAllOrNothingCurrency + mutators.mutatorParams.waveAllOrNothingCurrency
+		mutators.mutatorParams.totalAllOrNothingCurrency = mutators.mutatorParams.totalAllOrNothingCurrency 
+			+ mutators.mutatorParams.waveAllOrNothingCurrency
 	}
 }
 

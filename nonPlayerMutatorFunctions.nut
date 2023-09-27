@@ -34,7 +34,7 @@ function mutators::sabotagedCircuits() {
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "mutatorParams.sabotagedCircuits_duration", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "mutators.mutatorParams.sabotagedCircuits_duration", null)", 0, -1)
 	}
 }
 
@@ -46,7 +46,7 @@ function mutators::forcefulHeadstart() {
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "mutatorParams.forcefulHeadstart_duration", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "mutators.mutatorParams.forcefulHeadstart_duration", null)", 0, -1)
 	}
 }
 
@@ -70,9 +70,9 @@ function mutators::allOutOffense(bot) {
 function mutators::acceleratedDevelopment() {
 	local flag = null
 
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutatorParams.acceleratedDevelopment_multiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
 	
 	while(flag = Entities.FindByClassname(flag, "item_teamflag")) {
 		EntityOutputs.AddOutput(flag, "OnPickup1", "!activator", "RunScriptCode", "acceleratedDevelopmentHasBomb()", 0, -1)
