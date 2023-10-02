@@ -20,6 +20,7 @@ function OnGameEvent_player_hurt(params) {
 	if(mutators.activeMutators.find("divineSeal") != null) {
 		local player = GetPlayerFromUserID(params.userid)
 		//threshold prob should be a var
+		//ent_fire !self runscriptcode "IncludeScript(`mvmmutatorsvscript/botMutatorFunctions.nut`)"
 		if(IsPlayerABot(player) && player.GetMaxHealth() > 300 && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
 			ClientPrint(null, 3, "Someone got hurt and is egligible for divine seal") //This is successfully printed
 			player.GetScriptScope().divineSealTimer = Time() + 5
@@ -55,7 +56,13 @@ function OnGameEvent_player_disconnect(params) {
 function OnGameEvent_player_death(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	//if(activeMutators.find(
+	if(mutators.activeMutators.find("allOrNothing") != null) {
+		if(player.GetTeam() == TF_TEAM_RED) {
+			player.GetScriptScope().allOrNothingWavePenalty = player.GetScriptScope().allOrNothingWavePenalty 
+				- mutators.mutatorParams.allOrNothingPenalty
+			player.RemoveCurrency(mutators.mutatorParams.allOrNothingPenalty)
+		}
+	}
 	
 	if(mutators.activeMutators.find("lastWhirr") != null) {
 		if(player.GetTeam() == TF_TEAM_BLUE) {

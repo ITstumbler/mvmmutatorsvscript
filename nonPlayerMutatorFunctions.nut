@@ -63,8 +63,26 @@ function mutators::allOutOffense(bot) {
 	}
 }
 
-::allOrNothing <- function() {
+function mutators::allOrNothing() {
+	local mvmStats = Entities.FindByClassname(null, "tf_mann_vs_machine_stats")
 	
+	mvmStats.ValidateScriptScope()
+	local scope = mvmStats.GetScriptScope()
+	
+	scope.think <- function() {
+		local acquiredMoney = NetProps.GetPropInt(self, "m_currentWaveStat.nCreditsAcquired")
+		local currentMoney = mutatorParams.waveAllOrNothingCurrency
+		
+		if(acquiredMoney > currentMoney) {
+			local newMoney = acquiredMoney - currentMoney
+			
+			foreach(index, player in players) {
+				player.AddCurrency(newMoney)
+			}
+			mutatorParams.waveAllOrNothingCurrency = mutatorParams.waveAllOrNothingCurrency + newMoney
+		}
+	}
+	AddThinkToEnt(mvmStats, "think")
 }
 
 function mutators::acceleratedDevelopment() {

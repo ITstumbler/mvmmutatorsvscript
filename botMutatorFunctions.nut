@@ -12,8 +12,11 @@ function think() {
 }
 
 function divineSeal() {
-    printl(divineSealCurrentlyHealing)
-	if(divineSealCurrentlyHealing && Time() >= divineSealTimer) {
+	//printl("divine sealing rn")
+	//if(self.entindex() == 1) {
+		printl(divineSealCurrentlyHealing)
+	//}
+	if(Time() >= divineSealTimer && divineSealCurrentlyHealing) {
 		divineSealCurrentlyHealing = false
 		self.SetHealth(self.GetMaxHealth())
 	}
