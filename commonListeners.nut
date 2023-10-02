@@ -21,6 +21,7 @@ function OnGameEvent_player_hurt(params) {
 		local player = GetPlayerFromUserID(params.userid)
 		//threshold prob should be a var
 		if(IsPlayerABot(player) && player.GetMaxHealth() > 300 && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
+			ClientPrint(null, 3, "Someone got hurt and is egligible for divine seal") //This is successfully printed
 			player.GetScriptScope().divineSealTimer = Time() + 5
 			player.GetScriptScope().divineSealCurrentlyHealing = true
 		}

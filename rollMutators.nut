@@ -48,7 +48,7 @@ mutators.descriptions <- {
 	"agileLegionaires": {description = "\x0700de5cAgile Legionaires\x07FBECCB: \x0747f08dPlayers gain a speed boost", points = -1500}
 	"stockedUp": {description = "\x0700de5cStocked Up\x07FBECCB: \x0747f08dPlayers gain 3x ammo capacity", points = -1000}
 	"bloodlust": {description = "\x0700de5cBloodlust\x07FBECCB: \x0747f08dPlayers gain 1 second of critical hits on kill", points = -2000}
-	"honorboost": {description = "\x0700de5cHonorboost\x07FBECCB: P\x0747f08dlayers deal 1.5x fire and melee damage", points = -1500}
+	"honorboost": {description = "\x0700de5cHonorboost\x07FBECCB: \x0747f08dPlayers deal 1.5x fire and melee damage", points = -1500}
 	"heavyBomb": {description = "\x0700de5cHeavy Bomb\x07FBECCB: \x0747f08dBomb carriers move 20% slower", points = -1250}
 	"antisupport": {description = "\x0700de5cAntisupport\x07FBECCB: \x0747f08dSniper and Spy Robots move 30% slower and deal 30% less damage", points = -1500}
 	//"americanHealthcare": {description = "\x0700de5cAmerican Healthcare: Medicbots drop an additional $50 on death", points = -2500}
