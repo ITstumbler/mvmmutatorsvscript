@@ -22,7 +22,6 @@ function OnGameEvent_player_hurt(params) {
 		//threshold prob should be a var
 		//ent_fire !self runscriptcode "IncludeScript(`mvmmutatorsvscript/botMutatorFunctions.nut`)"
 		if(IsPlayerABot(player) && player.GetMaxHealth() > 300 && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
-			ClientPrint(null, 3, "Someone got hurt and is egligible for divine seal") //This is successfully printed
 			player.GetScriptScope().divineSealTimer = Time() + 5
 			player.GetScriptScope().divineSealCurrentlyHealing = true
 		}
@@ -32,7 +31,7 @@ function OnGameEvent_player_hurt(params) {
 function OnGameEvent_player_spawn(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	if(!(player.GetEntityIndex() in mutators.players)) { //if player is not in table
+	if(!IsPlayerABot(player) && !(player.GetEntityIndex() in mutators.players)) { //if player is not in table
 		mutators.players[player.GetEntityIndex()] <- player
 		
 		mutators.initPlayer(player)

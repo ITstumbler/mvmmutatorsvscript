@@ -140,8 +140,6 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		//if(IsPlayerABot(player)) continue
-		//may need to change this depending on mutators
 		
 		if(!IsPlayerABot(player)) {
 			players[i] <- player
@@ -187,10 +185,9 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		ClientPrint(null, 3, descriptions[mutator].description)
 	}
 	
-	for (local i = 1; i <= maxPlayers ; i++) {
+	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		//if(IsPlayerABot(player)) continue
 		
 		local scope = player.GetScriptScope()
 		
