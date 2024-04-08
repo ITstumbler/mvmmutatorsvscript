@@ -69,6 +69,10 @@ function mutators::allOrNothing() {
 	mvmStats.ValidateScriptScope()
 	local scope = mvmStats.GetScriptScope()
 	
+	if(mvmStats.GetScriptThinkFunc() == null || mvmStats.GetScriptThinkFunc() == "") {
+		return
+	}
+
 	scope.think <- function() {
 		local acquiredMoney = NetProps.GetPropInt(self, "m_currentWaveStat.nCreditsAcquired")
 		local currentMoney = mutatorParams.waveAllOrNothingCurrency

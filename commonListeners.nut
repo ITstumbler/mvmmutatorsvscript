@@ -4,15 +4,27 @@ mutators.rerollMutators <- true
 //on mutator -> non mutator = end
 
 function OnGameEvent_mvm_reset_stats(params) {
-	if(mutators.rerollMutators && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) {
+	if(mutators.rerollMutators && NetProps.GetPropInt(mutators.objResource, "m_nMannVsMachineWaveCount") == 1) {
 		//this should ignore wave jumping and wave fails
 		mutators.rollMutators()
 	}
 	mutators.rerollMutators = true
 }
 
+function OnGameEvent_mvm_mission_complete(params) {
+	//reset
+}
+
 function OnGameEvent_mvm_wave_failed(params) {
 	mutators.rerollMutators = false
+
+	if(mutators.activeMutators.find("allOrNothing") != null) {
+
+	}
+}
+
+function OnGameEvent_mvm_wave_complete(params) {
+
 }
 
 //Used by Divine Seal

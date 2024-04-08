@@ -6,12 +6,6 @@ mutators.maxPlayers <- MaxClients().tointeger()
 mutators.objResource <- Entities.FindByClassname(null, "tf_objective_resource")
 mutators.players <- {}
 
-//way to force bots to taunt by ficool
-mutators.tauntSandvich <- Entities.CreateByClassname("tf_weapon_lunchbox")
-NetProps.SetPropInt(mutators.tauntSandvich, "m_AttributeManager.m_Item.m_iItemDefinitionIndex", 42)
-NetProps.SetPropBool(mutators.tauntSandvich, "m_AttributeManager.m_Item.m_bInitialized", true)
-mutators.tauntSandvich.DispatchSpawn()
-
 //maybe rename
 mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
 	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",

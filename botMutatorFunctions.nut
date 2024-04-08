@@ -82,9 +82,7 @@ function acceleratedDevelopmentThink() {
 		
 			switch(upgradeLevel) {
 				case 0:				
-					//may need to make sure this can't end up in a race condition
-					NetProps.SetPropEntity(tauntSandvich, "m_hOwner", self);
-					tauntSandvich.PrimaryAttack();
+					self.Taunt(TAUNT_BASE_WEAPON, null)
 					
 					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 1)
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
@@ -102,8 +100,7 @@ function acceleratedDevelopmentThink() {
 					buffTimer = Time()
 					break;
 				case 1:
-					NetProps.SetPropEntity(tauntSandvich, "m_hOwner", self);
-					tauntSandvich.PrimaryAttack();
+					self.Taunt(TAUNT_BASE_WEAPON, null)
 					
 					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 2)
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
@@ -120,8 +117,7 @@ function acceleratedDevelopmentThink() {
 					self.AddCustomAttribute("CARD: health regen", Convars.GetFloat("tf_mvm_bot_flag_carrier_health_regen"), -1)
 					break;
 				case 2:
-					NetProps.SetPropEntity(tauntSandvich, "m_hOwner", self);
-					tauntSandvich.PrimaryAttack();
+					self.Taunt(TAUNT_BASE_WEAPON, null)
 				
 					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 3)
 					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", -1)
