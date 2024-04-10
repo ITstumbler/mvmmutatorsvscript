@@ -1,3 +1,7 @@
+if("mutators" in getroottable()) {
+	return
+}
+
 foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
 
 ::mutators <- {} //namespace for easier dumping later
@@ -130,7 +134,7 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
 	activeMutators = []
-	
+
 	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue

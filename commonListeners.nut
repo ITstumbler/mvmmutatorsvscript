@@ -1,20 +1,11 @@
-mutators.missionName <- null
-mutators.rerollMutators <- true
+mutators.missionName <- NetProps.GetPropString(objResource, "m_iszMvMPopfileName")
 
-//on mutator -> non mutator = end
-
-/*
+//runs before waveinit, so if we changed to a mutator mission it'll regen
 function mutators::OnGameEvent_recalculate_holidays(params) {
-
-}
-*/
-
-function mutators::OnGameEvent_mvm_reset_stats(params) {
-	if(rerollMutators && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) {
-		//this should ignore wave jumping and wave fails
-		rollMutators()
-	}
-	rerollMutators = true
+	if(GetRoundState() == GR_STATE_PREROUND && missionName != NetProps.GetPropString(objResource, "m_iszMvMPopfileName")) {
+		cleanup()
+		delete ::mutators
+	)
 }
 
 function mutators::OnGameEvent_mvm_mission_complete(params) {
@@ -23,8 +14,6 @@ function mutators::OnGameEvent_mvm_mission_complete(params) {
 }
 
 function mutators::OnGameEvent_mvm_wave_failed(params) {
-	rerollMutators = false
-
 	if(activeMutators.find("allOrNothing") != null) {
 
 	}
