@@ -3,33 +3,43 @@ mutators.rerollMutators <- true
 
 //on mutator -> non mutator = end
 
-function OnGameEvent_mvm_reset_stats(params) {
-	if(mutators.rerollMutators && NetProps.GetPropInt(mutators.objResource, "m_nMannVsMachineWaveCount") == 1) {
+/*
+function mutators::OnGameEvent_recalculate_holidays(params) {
+
+}
+*/
+
+function mutators::OnGameEvent_mvm_reset_stats(params) {
+	if(rerollMutators && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) {
 		//this should ignore wave jumping and wave fails
-		mutators.rollMutators()
+		rollMutators()
 	}
-	mutators.rerollMutators = true
+	rerollMutators = true
 }
 
-function OnGameEvent_mvm_mission_complete(params) {
-	//reset
+function mutators::OnGameEvent_mvm_mission_complete(params) {
+	cleanup()
+	delete ::mutators
 }
 
-function OnGameEvent_mvm_wave_failed(params) {
-	mutators.rerollMutators = false
+function mutators::OnGameEvent_mvm_wave_failed(params) {
+	rerollMutators = false
 
-	if(mutators.activeMutators.find("allOrNothing") != null) {
+	if(activeMutators.find("allOrNothing") != null) {
 
 	}
 }
 
-function OnGameEvent_mvm_wave_complete(params) {
-
+function mutators::OnGameEvent_mvm_wave_complete(params) {
+	if(activeMutators.find("allOrNothing") != null) {
+		mutatorParams.totalAllOrNothingCurrency = mutatorParams.totalAllOrNothingCurrency 
+			+ mutatorParams.waveAllOrNothingCurrency
+	}
 }
 
 //Used by Divine Seal
-function OnGameEvent_player_hurt(params) {
-	if(mutators.activeMutators.find("divineSeal") != null) {
+function mutators::OnGameEvent_player_hurt(params) {
+	if(activeMutators.find("divineSeal") != null) {
 		local player = GetPlayerFromUserID(params.userid)
 		//threshold prob should be a var
 		//ent_fire !self runscriptcode "IncludeScript(`mvmmutatorsvscript/botMutatorFunctions.nut`)"
@@ -40,51 +50,51 @@ function OnGameEvent_player_hurt(params) {
 	}
 }
 	
-function OnGameEvent_player_spawn(params) {
+function mutators::OnGameEvent_player_spawn(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	if(!IsPlayerABot(player) && !(player.GetEntityIndex() in mutators.players)) { //if player is not in table
-		mutators.players[player.GetEntityIndex()] <- player
+	if(!IsPlayerABot(player) && !(player.GetEntityIndex() in players)) { //if player is not in table
+		players[player.GetEntityIndex()] <- player
 		
-		mutators.initPlayer(player)
+		initPlayer(player)
 		AddThinkToEnt(player, "think")
 	}
 	
-	if(mutators.activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
+	if(activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
 		if(IsPlayerABot(player)) {
 			//use entfire to ensure bot stuff is applied
-			EntFireByHandle(player, "RunScriptCode", "mutators.allOutOffense(activator)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "allOutOffense(activator)", -1, player, null)
 		}
 	}
 }
 
-function OnGameEvent_player_disconnect(params) {
+function mutators::OnGameEvent_player_disconnect(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	delete mutators.players[player.GetEntityIndex()]
+	delete players[player.GetEntityIndex()]
 }
 
-function OnGameEvent_player_death(params) {
+function mutators::OnGameEvent_player_death(params) {
 	local player = GetPlayerFromUserID(params.userid)
 	
-	if(mutators.activeMutators.find("allOrNothing") != null) {
+	if(activeMutators.find("allOrNothing") != null) {
 		if(player.GetTeam() == TF_TEAM_RED) {
 			player.GetScriptScope().allOrNothingWavePenalty = player.GetScriptScope().allOrNothingWavePenalty 
-				- mutators.mutatorParams.allOrNothingPenalty
-			player.RemoveCurrency(mutators.mutatorParams.allOrNothingPenalty)
+				- mutatorParams.allOrNothingPenalty
+			player.RemoveCurrency(mutatorParams.allOrNothingPenalty)
 		}
 	}
 	
-	if(mutators.activeMutators.find("lastWhirr") != null) {
+	if(activeMutators.find("lastWhirr") != null) {
 		if(player.GetTeam() == TF_TEAM_BLUE) {
 			local victim = null
 			
-			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutators.mutatorParams.lastWhirrRadius)) {
+			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutatorParams.lastWhirrRadius)) {
 				if(victim.GetTeam() == TF_TEAM_RED) {
 					local distance = (victim.GetCenter() - player.GetCenter()).Length()
 					local shouldDamage = true
 					printl("distance " + distance)
-					DebugDrawCircle(player.GetCenter(), Vector(255, 0, 0), 127, mutators.mutatorParams.lastWhirrRadius, true, 1)
+					DebugDrawCircle(player.GetCenter(), Vector(255, 0, 0), 127, mutatorParams.lastWhirrRadius, true, 1)
 					
 					local traceTable = {
 						start = player.GetCenter()
@@ -98,8 +108,8 @@ function OnGameEvent_player_death(params) {
 					}
 					
 					if(shouldDamage) {
-						local splash = distance / mutators.mutatorParams.lastWhirrReductionDistance
-						local damage = mutators.mutatorParams.lastWhirrDmg * (1 - splash / 100)
+						local splash = distance / mutatorParams.lastWhirrReductionDistance
+						local damage = mutatorParams.lastWhirrDmg * (1 - splash / 100)
 						printl("damage " + damage)
 						
 						victim.TakeDamageEx(player, null, null, Vector(0, 0, 0), player.GetOrigin(), damage, DMG_BLAST)
@@ -110,11 +120,4 @@ function OnGameEvent_player_death(params) {
 	}
 }
 
-function OnGameEvent_mvm_wave_complete(params) {
-	if(mutators.activeMutators.find("allOrNothing") != null) {
-		mutators.mutatorParams.totalAllOrNothingCurrency = mutators.mutatorParams.totalAllOrNothingCurrency 
-			+ mutators.mutatorParams.waveAllOrNothingCurrency
-	}
-}
-
-__CollectGameEventCallbacks(this)
+__CollectGameEventCallbacks(mutators)

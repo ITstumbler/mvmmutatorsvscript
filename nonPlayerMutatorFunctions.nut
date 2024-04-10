@@ -75,7 +75,7 @@ function mutators::allOrNothing() {
 
 	scope.think <- function() {
 		local acquiredMoney = NetProps.GetPropInt(self, "m_currentWaveStat.nCreditsAcquired")
-		local currentMoney = mutatorParams.waveAllOrNothingCurrency
+		local currentMoney = mutators.mutatorParams.waveAllOrNothingCurrency
 		
 		if(acquiredMoney > currentMoney) {
 			local newMoney = acquiredMoney - currentMoney
@@ -83,7 +83,7 @@ function mutators::allOrNothing() {
 			foreach(index, player in players) {
 				player.AddCurrency(newMoney)
 			}
-			mutatorParams.waveAllOrNothingCurrency = mutatorParams.waveAllOrNothingCurrency + newMoney
+			mutators.mutatorParams.waveAllOrNothingCurrency += newMoney
 		}
 	}
 	AddThinkToEnt(mvmStats, "think")
@@ -92,9 +92,9 @@ function mutators::allOrNothing() {
 function mutators::acceleratedDevelopment() {
 	local flag = null
 
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
-	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutators.mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade", 5 * mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
+	Convars.SetValue("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade", 15 * mutatorParams.acceleratedDevelopment_multiplier)
 	
 	while(flag = Entities.FindByClassname(flag, "item_teamflag")) {
 		EntityOutputs.AddOutput(flag, "OnPickup1", "!activator", "RunScriptCode", "acceleratedDevelopmentHasBomb()", 0, -1)

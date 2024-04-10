@@ -197,6 +197,7 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 
 //reset to default, dump everything
 function mutators::cleanup() {
-
-
+	foreach(convar, val in convarsToReset) {
+		Convars.SetValue(convar, val)
+	}
 }
