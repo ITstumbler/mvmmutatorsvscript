@@ -48,11 +48,94 @@ function mutators::OnGameEvent_player_spawn(params) {
 		initPlayer(player)
 		AddThinkToEnt(player, "think")
 	}
+
+	//Simple stat change mutators below
+	//Big todo: the first time a player spawns something
+
+	if(activeMutators.find("aggressiveMercs") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `dmg penalty vs players`, 1.25)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("healthyFighters") != null) {
+		//Todo: resupply players on spawn
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `max health additive bonus`, 75)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("agileLegionaires") != null) {
+		//Todo: fix typo (it's "Legionnaires")
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: move speed bonus`, 1.2)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("stockedUp") != null) {
+		//Todo: resupply players on spawn
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden primary max ammo bonus`, 3)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden secondary max ammo penalty`, 3)", -1, player, null)
+			//EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `maxammo metal increased`, 3)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("bloodlust") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `critboost on kill`, 1)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("sharpenedSteel") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `bleeding duration`, 5)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("regenerativeFactor") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `SET BONUS: health regen set bonus`, 4)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("critWeakness") != null) {
+		if(IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `dmg taken from crit increased`, 1.5)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("offensiveFocus") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.25)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `engy sentry damage bonus`, 1.25)", -1, player, null)
+	}
+
+	if(activeMutators.find("regenerativeFactor") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `SET BONUS: health regen set bonus`, 4)", -1, player, null)
+		}
+	}
+
+	// if(activeMutators.find("marathon") != null) {
+	// 	EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.25)", -1, player, null)
+	// }
+
+	if(activeMutators.find("deathWatch") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `health drain`, -5)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("deepWounds") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `healing received penalty`, 0.5)", -1, player, null)
+		}
+	}
 	
 	if(activeMutators.find("allOutOffense") != null) { //might want a cleaner way of showing this?
 		if(IsPlayerABot(player)) {
 			//use entfire to ensure bot stuff is applied
-			EntFireByHandle(player, "RunScriptCode", "allOutOffense(activator)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.allOutOffense(activator)", -1, player, null)
 		}
 	}
 }

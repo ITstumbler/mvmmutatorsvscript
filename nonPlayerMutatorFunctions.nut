@@ -63,6 +63,10 @@ function mutators::allOutOffense(bot) {
 	}
 }
 
+function mutators::addAttributeOnSpawn(player, attribute, value) {
+	player.AddCustomAttribute(attribute, value, -1)
+}
+
 function mutators::allOrNothing() {
 	local mvmStats = Entities.FindByClassname(null, "tf_mann_vs_machine_stats")
 	
