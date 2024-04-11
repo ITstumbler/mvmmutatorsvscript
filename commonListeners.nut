@@ -1,11 +1,11 @@
-mutators.missionName <- NetProps.GetPropString(objResource, "m_iszMvMPopfileName")
+mutators.missionName <- NetProps.GetPropString(mutators.objResource, "m_iszMvMPopfileName")
 
 //runs before waveinit, so if we changed to a mutator mission it'll regen
 function mutators::OnGameEvent_recalculate_holidays(params) {
 	if(GetRoundState() == GR_STATE_PREROUND && missionName != NetProps.GetPropString(objResource, "m_iszMvMPopfileName")) {
 		cleanup()
 		delete ::mutators
-	)
+	}
 }
 
 function mutators::OnGameEvent_mvm_mission_complete(params) {
@@ -17,6 +17,7 @@ function mutators::OnGameEvent_mvm_wave_failed(params) {
 	if(activeMutators.find("allOrNothing") != null) {
 
 	}
+	waveFailed = true
 }
 
 function mutators::OnGameEvent_mvm_wave_complete(params) {
@@ -49,8 +50,7 @@ function mutators::OnGameEvent_player_spawn(params) {
 		AddThinkToEnt(player, "think")
 	}
 
-	//Simple stat change mutators below
-	//Big todo: the first time a player spawns something
+	if(!waveFailed && GetRoundState() == GR_STATE_PREROUND && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) return
 
 	if(activeMutators.find("aggressiveMercs") != null) {
 		if(!IsPlayerABot(player)) {
@@ -59,13 +59,12 @@ function mutators::OnGameEvent_player_spawn(params) {
 	}
 
 	if(activeMutators.find("healthyFighters") != null) {
-		//Todo: resupply players on spawn
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `max health additive bonus`, 75)", -1, player, null)
 		}
 	}
 
-	if(activeMutators.find("agileLegionaires") != null) {
+	if(activeMutators.find("agileLegionnaires") != null) {
 		//Todo: fix typo (it's "Legionnaires")
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: move speed bonus`, 1.2)", -1, player, null)
@@ -73,7 +72,6 @@ function mutators::OnGameEvent_player_spawn(params) {
 	}
 
 	if(activeMutators.find("stockedUp") != null) {
-		//Todo: resupply players on spawn
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden primary max ammo bonus`, 3)", -1, player, null)
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden secondary max ammo penalty`, 3)", -1, player, null)
@@ -110,15 +108,20 @@ function mutators::OnGameEvent_player_spawn(params) {
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `engy sentry damage bonus`, 1.25)", -1, player, null)
 	}
 
-	if(activeMutators.find("regenerativeFactor") != null) {
-		if(!IsPlayerABot(player)) {
-			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `SET BONUS: health regen set bonus`, 4)", -1, player, null)
-		}
+	if(activeMutators.find("marathon") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.5, 1)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `hidden maxhealth non buffed`, 50, 1)", -1, player, null)
 	}
 
-	// if(activeMutators.find("marathon") != null) {
-	// 	EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.25)", -1, player, null)
-	// }
+	if(activeMutators.find("freedomania") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `fire rate bonus`, 0.65, 3)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `Reload time decreased`, 0.65, 3)", -1, player, null)
+	}
+
+	if(activeMutators.find("inferno") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.5, 7)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `flame_drag`, -2.5, 7)", -1, player, null)
+	}
 
 	if(activeMutators.find("deathWatch") != null) {
 		if(!IsPlayerABot(player)) {

@@ -65,6 +65,13 @@ function mutators::allOutOffense(bot) {
 
 function mutators::addAttributeOnSpawn(player, attribute, value) {
 	player.AddCustomAttribute(attribute, value, -1)
+	player.Regenerate(true)
+}
+
+function mutators::addAttributeOnSpawnClassSpecific(player, attribute, value, classCheck) {
+	if(player.GetPlayerClass() != classCheck) return
+	player.AddCustomAttribute(attribute, value, -1)
+	player.Regenerate(true)
 }
 
 function mutators::allOrNothing() {

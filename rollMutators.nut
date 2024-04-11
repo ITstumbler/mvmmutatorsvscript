@@ -2,6 +2,8 @@ if("mutators" in getroottable()) {
 	return
 }
 
+::PlayerManager <- Entities.FindByClassname(null, "tf_player_manager")
+
 foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
 
 ::mutators <- {} //namespace for easier dumping later
@@ -9,9 +11,15 @@ foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getrootta
 mutators.maxPlayers <- MaxClients().tointeger()
 mutators.objResource <- Entities.FindByClassname(null, "tf_objective_resource")
 mutators.players <- {}
+mutators.waveFailed <- false
+
+// if(mutators.waveFailed) {
+// 	mutators.waveFailed = false
+// 	return
+// }
 
 //maybe rename
-mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
+mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionnaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
 	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
 		"ourBenefactors", "allOrNothing", "offensiveFocus", "allOutOffense", "acceleratedDevelopment", "terrifyingTitans", 
 		"rushdown", "deathWatch", "reinforcedMedics", "deepWounds", "protectTheCarrier", "septicTank", "tripleTrouble", "inflammableSkin"]
@@ -43,7 +51,7 @@ mutators.mutatorCategories <- [mutators.genericMutators, mutators.meleeMutators,
 mutators.descriptions <- {
 	"aggressiveMercs": {description = "\x0700de5cAggressive Mercs\x07FBECCB: \x0747f08dPlayers deal 1.25x damage", points = -3000}
 	"healthyFighters": {description = "\x0700de5cHealthy Fighters\x07FBECCB: \x0747f08dPlayers gain +75 max health", points = -3000}
-	"agileLegionaires": {description = "\x0700de5cAgile Legionaires\x07FBECCB: \x0747f08dPlayers gain a speed boost", points = -1500}
+	"agileLegionnaires": {description = "\x0700de5cAgile Legionaires\x07FBECCB: \x0747f08dPlayers gain a speed boost", points = -1500}
 	"stockedUp": {description = "\x0700de5cStocked Up\x07FBECCB: \x0747f08dPlayers gain 3x ammo capacity", points = -1000}
 	"bloodlust": {description = "\x0700de5cBloodlust\x07FBECCB: \x0747f08dPlayers gain 1 second of critical hits on kill", points = -2000}
 	"honorboost": {description = "\x0700de5cHonorboost\x07FBECCB: \x0747f08dPlayers deal 1.5x fire and melee damage", points = -1500}
@@ -131,6 +139,8 @@ function mutators::initPlayer(player) {
 }
 
 function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
+	mutator1 = "inferno"
+
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
 	activeMutators = []
@@ -195,7 +205,18 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 			}
 		}
 		AddThinkToEnt(player, "think")
+
+		if(player.GetTeam() != 2) continue
+
+		local spawn = {
+			userid = NetProps.GetPropIntArray(PlayerManager, "m_iUserID", player.GetEntityIndex()),
+			team = player.GetTeam(),
+			["class"] = player.GetPlayerClass()
+		}
+
+		FireGameEvent("player_spawn", spawn)
 	}
+	waveFailed = false
 	//to do: need to run one time non player functions somehow (make a specific array of them?)
 }
 
