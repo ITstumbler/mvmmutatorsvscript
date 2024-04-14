@@ -52,7 +52,8 @@ function mutators::OnGameEvent_player_spawn(params) {
 
 	if(!waveFailed && GetRoundState() == GR_STATE_PREROUND && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) return
 
-	if(activeMutators.find("dwarfism") == null && activeMutators.find("armoredGiants") == null && activeMutators.find("steelPlating") == null && activeMutators.find("magicCoating") == null && activeMutators.find("superGiants") == null) {
+	if(activeMutators.find("dwarfism") == null && activeMutators.find("armoredGiants") == null && activeMutators.find("steelPlating") == null 
+		&& activeMutators.find("magicCoating") == null && activeMutators.find("superGiants") == null) {
 		if(IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.adjustMaxHp(activator, 1, true)", -1, player, null)
 		}
@@ -149,7 +150,7 @@ function mutators::OnGameEvent_player_spawn(params) {
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage bonus HIDDEN`, 1.5, 4, `melee`)", -1, player, null)
 	}
 
-	if(activeMutators.find("ironCurtain") != null) {
+	if(activeMutators.find("ironCurtain") != null && player.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) {
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage force reduction`, 0.01, 6)", -1, player, null)
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vulnerability multiplier`, 0.01, 6)", -1, player, null)
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vertical vulnerability multiplier`, 0.01, 6)", -1, player, null)

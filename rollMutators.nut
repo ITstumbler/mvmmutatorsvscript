@@ -2,8 +2,6 @@ if("mutators" in getroottable()) {
 	return
 }
 
-::PlayerManager <- Entities.FindByClassname(null, "tf_player_manager")
-
 foreach(a,b in Constants){foreach(k,v in b){if(!(k in getroottable())){getroottable()[k]<-v;}}} //takes all constant keyvals and puts them in global
 
 ::mutators <- {} //namespace for easier dumping later
@@ -194,6 +192,7 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		ClientPrint(null, 3, descriptions[mutator].description)
 	}
 	
+	local playerManager = Entities.FindByClassname(null, "tf_player_manager")
 	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
@@ -210,7 +209,7 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		if(player.GetTeam() != 2) continue
 
 		local spawn = {
-			userid = NetProps.GetPropIntArray(PlayerManager, "m_iUserID", player.GetEntityIndex()),
+			userid = NetProps.GetPropIntArray(playerManager, "m_iUserID", player.GetEntityIndex()),
 			team = player.GetTeam(),
 			["class"] = player.GetPlayerClass()
 		}

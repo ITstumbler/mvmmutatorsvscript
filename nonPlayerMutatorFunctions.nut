@@ -64,39 +64,43 @@ function mutators::allOutOffense(bot) {
 	//adjustMaxHp(bot, 0.5, true)
 }
 
-function mutators::adjustMaxHp(bot, hpNum, isMultiplier=false, botCheck=null) {
+function mutators::adjustMaxHp(bot, hpNum, isMultiplier = false, botCheck = null) {
 	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
-	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == false || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
-	if(botCheck == "allGiants" && bot.IsMiniBoss() == false) return
+	if(botCheck == "nonBossGiants" && (!bot.IsMiniBoss() || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && !bot.IsMiniBoss()) return
 	local newMaxHp = bot.GetMaxHealth()
-	if(isMultiplier == true) {
+	
+	if(isMultiplier) {
 		newMaxHp = newMaxHp * hpNum
 	}
 	else {
 		newMaxHp = newMaxHp + hpNum
 	}
-	if(activeMutators.find("allOutOffense")) newMaxHp = newMaxHp / 2
-	if(activeMutators.find("ironCurtain")) newMaxHp = newMaxHp + 200
-	bot.SetHealth(newMaxHp)
+	
+	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp / 2
+	if(activeMutators.find("ironCurtain") != null && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) newMaxHp += 200
 	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
+	bot.SetHealth(newMaxHp)
 }
 
-function mutators::adjustMaxHpInverse(bot, botCheck=null) {
-	if(botCheck == "nonBoss" && !(bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
-	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == true && !(bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)))) return
-	if(botCheck == "allGiants" && bot.IsMiniBoss() == true) return
+function mutators::adjustMaxHpInverse(bot, botCheck = null) {
+	if(botCheck == "nonBoss" && !bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
+	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() && !bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && bot.IsMiniBoss()) return
+	
 	local newMaxHp = bot.GetMaxHealth()
-	if(activeMutators.find("allOutOffense")) newMaxHp = newMaxHp / 2
-	if(activeMutators.find("ironCurtain")) newMaxHp = newMaxHp + 200
+	
+	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp / 2
+	if(activeMutators.find("ironCurtain" && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) != null) newMaxHp += 200
 	bot.SetHealth(newMaxHp)
 	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
 }
 
 function mutators::addAttributeOnSpawn(player, attribute, value, classCheck=null, weaponRestriction=null, botCheck=null) {
 	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
-	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == false || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
-	if(botCheck == "allGiants" && bot.IsMiniBoss() == false) return
-	if(player.GetPlayerClass() != classCheck && classCheck != null) return
+	if(botCheck == "nonBossGiants" && (!bot.IsMiniBoss() || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && !bot.IsMiniBoss()) return
+	if(classCheck != null && player.GetPlayerClass() != classCheck) return
 	if(weaponRestriction != null) {
 		for (local i = 0; i < 8; i++)
 		{
