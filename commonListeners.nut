@@ -52,6 +52,12 @@ function mutators::OnGameEvent_player_spawn(params) {
 
 	if(!waveFailed && GetRoundState() == GR_STATE_PREROUND && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) return
 
+	if(activeMutators.find("dwarfism") == null && activeMutators.find("armoredGiants") == null && activeMutators.find("steelPlating") == null && activeMutators.find("magicCoating") == null && activeMutators.find("superGiants") == null) {
+		if(IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.adjustMaxHp(activator, 1, true)", -1, player, null)
+		}
+	}
+
 	if(activeMutators.find("aggressiveMercs") != null) {
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `dmg penalty vs players`, 1.25)", -1, player, null)
@@ -85,6 +91,14 @@ function mutators::OnGameEvent_player_spawn(params) {
 		}
 	}
 
+	if(activeMutators.find("honorboost") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, null, `melee`)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, null, `tf_weapon_flamethrower`)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, null, `tf_weapon_rocketlauncher_fireball`)", -1, player, null)
+		}
+	}
+
 	if(activeMutators.find("sharpenedSteel") != null) {
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `bleeding duration`, 5)", -1, player, null)
@@ -94,6 +108,13 @@ function mutators::OnGameEvent_player_spawn(params) {
 	if(activeMutators.find("regenerativeFactor") != null) {
 		if(!IsPlayerABot(player)) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `SET BONUS: health regen set bonus`, 4)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("dwarfism") != null) {
+		if(IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.adjustMaxHp(activator, 0.75, true, `nonBossGiants`)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.adjustMaxHpInverse(activator, `nonBossGiants`)", -1, player, null)
 		}
 	}
 
@@ -109,18 +130,51 @@ function mutators::OnGameEvent_player_spawn(params) {
 	}
 
 	if(activeMutators.find("marathon") != null) {
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.5, 1)", -1, player, null)
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `hidden maxhealth non buffed`, 50, 1)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, 1)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden maxhealth non buffed`, 50, 1)", -1, player, null)
 	}
 
 	if(activeMutators.find("freedomania") != null) {
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `fire rate bonus`, 0.65, 3)", -1, player, null)
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `Reload time decreased`, 0.65, 3)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `fire rate bonus`, 0.65, 3)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `Reload time decreased`, 0.65, 3)", -1, player, null)
 	}
 
 	if(activeMutators.find("inferno") != null) {
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `CARD: damage bonus`, 1.5, 7)", -1, player, null)
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawnClassSpecific(activator, `flame_drag`, -2.5, 7)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, 7)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `flame_drag`, -2.5, 7)", -1, player, null)
+	}
+
+	if(activeMutators.find("pandemonium") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `Reload time decreased`, 0.4, 4)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage bonus HIDDEN`, 1.5, 4, `melee`)", -1, player, null)
+	}
+
+	if(activeMutators.find("ironCurtain") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage force reduction`, 0.01, 6)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vulnerability multiplier`, 0.01, 6)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vertical vulnerability multiplier`, 0.01, 6)", -1, player, null)
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `hidden maxhealth non buffed`, 200, 6)", -1, player, null)
+		}
+	}
+
+	if(activeMutators.find("texasRangers") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `engy building health bonus`, 1.5, 9)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `engy sentry damage bonus`, 1.25, 9)", -1, player, null)
+	}
+
+	if(activeMutators.find("germanTechnology") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `ubercharge rate bonus`, 1.5, 5)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `uber duration bonus`, 4, 5)", -1, player, null)
+	}
+
+	if(activeMutators.find("australianRules") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, 1.5, 2)", -1, player, null)
+	}
+
+	if(activeMutators.find("chateauBackstab") != null) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `dmg taken increased`, 0.35, 8)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `fire rate bonus`, 0.7, 8)", -1, player, null)
 	}
 
 	if(activeMutators.find("deathWatch") != null) {

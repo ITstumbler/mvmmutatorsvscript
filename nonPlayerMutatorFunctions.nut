@@ -56,22 +56,60 @@ function mutators::allOutOffense(bot) {
 	}
 	else {
 		bot.AddBotAttribute(ALWAYS_CRIT)
-		bot.SetHealth(bot.GetMaxHealth() / 2)
-		bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() / 2), -1)
+		// bot.SetHealth(bot.GetMaxHealth() / 2)
+		// bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() / 2), -1)
 		
 		//printl(bot.GetMaxHealth())
 	}
+	//adjustMaxHp(bot, 0.5, true)
 }
 
-function mutators::addAttributeOnSpawn(player, attribute, value) {
-	player.AddCustomAttribute(attribute, value, -1)
-	player.Regenerate(true)
+function mutators::adjustMaxHp(bot, hpNum, isMultiplier=false, botCheck=null) {
+	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
+	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == false || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && bot.IsMiniBoss() == false) return
+	local newMaxHp = bot.GetMaxHealth()
+	if(isMultiplier == true) {
+		newMaxHp = newMaxHp * hpNum
+	}
+	else {
+		newMaxHp = newMaxHp + hpNum
+	}
+	if(activeMutators.find("allOutOffense")) newMaxHp = newMaxHp / 2
+	if(activeMutators.find("ironCurtain")) newMaxHp = newMaxHp + 200
+	bot.SetHealth(newMaxHp)
+	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
 }
 
-function mutators::addAttributeOnSpawnClassSpecific(player, attribute, value, classCheck) {
-	if(player.GetPlayerClass() != classCheck) return
-	player.AddCustomAttribute(attribute, value, -1)
-	player.Regenerate(true)
+function mutators::adjustMaxHpInverse(bot, botCheck=null) {
+	if(botCheck == "nonBoss" && !(bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == true && !(bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)))) return
+	if(botCheck == "allGiants" && bot.IsMiniBoss() == true) return
+	local newMaxHp = bot.GetMaxHealth()
+	if(activeMutators.find("allOutOffense")) newMaxHp = newMaxHp / 2
+	if(activeMutators.find("ironCurtain")) newMaxHp = newMaxHp + 200
+	bot.SetHealth(newMaxHp)
+	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
+}
+
+function mutators::addAttributeOnSpawn(player, attribute, value, classCheck=null, weaponRestriction=null, botCheck=null) {
+	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
+	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() == false || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && bot.IsMiniBoss() == false) return
+	if(player.GetPlayerClass() != classCheck && classCheck != null) return
+	if(weaponRestriction != null) {
+		for (local i = 0; i < 8; i++)
+		{
+			local weapon = NetProps.GetPropEntityArray(player, "m_hMyWeapons", i)
+			if (weapon == null) continue
+			if (weapon.IsMeleeWeapon() && weaponRestriction == "melee") weapon.AddAttribute(attribute, value, -1)
+			if (weapon.GetClassname() == weaponRestriction) weapon.AddAttribute(attribute, value, -1)
+		}
+	}
+	else {
+		player.AddCustomAttribute(attribute, value, -1)
+		player.Regenerate(true)
+	}
 }
 
 function mutators::allOrNothing() {

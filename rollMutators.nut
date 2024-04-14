@@ -41,7 +41,7 @@ mutators.spawnMutators <- ["sabotagedCircuits", "forcefulHeadstart"]
 mutators.deathMutators <- ["lastWhirr"]
 
 mutators.classMutators <- ["marathon", "freedomania", "inferno", "pandemonium", "ironCurtain", "texasRangers", "germanTechnology",
-	"australiaRules", "chateauBackstab"]
+	"australianRules", "chateauBackstab"]
 	
 mutators.mutatorCategories <- [mutators.genericMutators, mutators.meleeMutators, mutators.statusMutators,
 	mutators.healthMutators, mutators.regenMutators, mutators.tankMutators, mutators.spawnMutators,
@@ -74,9 +74,9 @@ mutators.descriptions <- {
 	"inferno": {description = "\x07f3f705Inferno\x07FBECCB: \x07fcff65Pyro players and robots gain extra flamethrower range and 1.5x damage", points = 0}
 	"pandemonium": {description = "\x07f3f705Pandemonium\x07FBECCB: \x07fcff65Demoman players and robots gain 60% faster reload speed and 1.5x melee damage", points = 0}
 	"ironCurtain": {description = "\x07f3f705Iron Curtain\x07FBECCB: \x07fcff65Heavy players and robots gain +200 max health and knockback immunity", points = 0}
-	"texasRangers": {description = "\x07f3f705Texas Rangers\x07FBECCB: \x07fcff65Engineer players and robots gain 2x building health and upgrade rate", points = 0}
+	"texasRangers": {description = "\x07f3f705Texas Rangers\x07FBECCB: \x07fcff65Engineer players and robots gain 1.5x building health and 1.25x sentry damage", points = 0}
 	"germanTechnology": {description = "\x07f3f705German Technology\x07FBECCB: \x07fcff65Medic players and robots gain 1.5x uber rate and +4s uber duration", points = 0}
-	"australiaRules": {description = "\x07f3f705Australia Rules\x07FBECCB: \x07fcff65Sniper players and robots gain 1.5x damage", points = 0}
+	"australianRules": {description = "\x07f3f705Australia Rules\x07FBECCB: \x07fcff65Sniper players and robots gain 1.5x damage", points = 0}
 	"chateauBackstab": {description = "\x07f3f705Chateau Backstab\x07FBECCB: \x07fcff65Spy players and robots gain 65% damage resistance and 30% faster attack speed", points = 0}
 	"armoredGiants": {description = "\x07f3f705Armored Giants\x07FBECCB: \x07fcff65Non-boss giant robots gain +30% max health and move 20% slower", points = 0}
 	"allOrNothing": {description = "\x07f3f705All or Nothing\x07FBECCB: \x07fcff65Robots drop twice as much credits, but players pay $400 per death", points = 0}
@@ -139,7 +139,8 @@ function mutators::initPlayer(player) {
 }
 
 function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
-	mutator1 = "inferno"
+	mutator1 = "ironCurtain"
+	//mutator2 = "allOutOffense"
 
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
