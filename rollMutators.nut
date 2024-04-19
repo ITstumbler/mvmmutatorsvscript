@@ -80,7 +80,7 @@ mutators.descriptions <- {
 	"allOrNothing": {description = "\x07f3f705All or Nothing\x07FBECCB: \x07fcff65Robots drop twice as much credits, but players pay $400 per death", points = 0}
 	"offensiveFocus": {description = "\x07f3f705Offensive Focus\x07FBECCB: \x07fcff65Players and robots do 1.25x damage", points = 0}
 	"robotsOfSteel": {description = "\x07f3f705Robots of Steel\x07FBECCB: \x07fcff65Robots take 40% less damage from ranged sources but 100% more damage from melee", points = 0}
-	"steelPlating": {description = "\x07f70505Steel Plating\x07FBECCB: \x07ff4d4dRobots gain +50 max health", points = 1750}
+	"steelPlating": {description = "\x07f70505Steel Plating\x07FBECCB: \x07ff4d4dRobots gain +100 max health", points = 2250}
 	"magicCoating": {description = "\x07f70505Magic Coating\x07FBECCB: \x07ff4d4dNon-boss robots gain +25% max health", points = 2500}
 	"divineSeal": {description = "\x07f70505Divine Seal\x07FBECCB: \x07ff4d4dNon-boss robots recover all health when not damaged for 5 seconds", points = 2000}
 	"allOutOffense": {description = "\x07f70505All-Out Offense\x07FBECCB: \x07ff4d4dRobots gain crits and -50% max health. Robots with innate crits gain 2x damage instead", points = 1000}
@@ -95,7 +95,7 @@ mutators.descriptions <- {
 	"superGiants": {description = "\x07f70505Super Giants\x07FBECCB: \x07ff4d4dNon-boss giant robots gain +50% max health", points = 3000}
 	"reinforcedMedics": {description = "\x07f70505Reinforced Medics\x07FBECCB: \x07ff4d4dMedic robots activate uber earlier and have 2x max health", points = 2000}
 	"deepWounds": {description = "\x07f70505Deep Wounds\x07FBECCB: \x07ff4d4dAll player healing is 50% less effective", points = 2500}
-	"protectTheCarrier": {description = "\x07f70505Protect the Carrier\x07FBECCB: \x07ff4d4dBomb carriers gain King powerup", points = 1000}
+	"protectTheCarrier": {description = "\x07f70505Protect the Carrier\x07FBECCB: \x07ff4d4dBomb carriers and robots near it receive significant damage protection and healing", points = 3000}
 	"septicTank": {description = "\x07f70505Septic Tank\x07FBECCB: \x07ff4d4dTanks jarate and set nearby players on fire upon destruction", points = 500}
 	"tripleTrouble": {description = "\x07f70505Triple Trouble\x07FBECCB: \x07ff4d4dRobots gain two additional bombs", points = 1000}
 	"inflammableSkin": {description = "\x07f70505Inflammable Skin\x07FBECCB: \x07ff4d4dBurning players are Marked for Death", points = 1000}
@@ -104,18 +104,84 @@ mutators.descriptions <- {
 
 //list of params for various mutators
 mutators.mutatorParams <- {
-	septicTank_radius = 0
-	acceleratedDevelopment_multiplier = 0.5
-	sabotagedCircuits_duration = 1
-	forcefulHeadstart_duration = 3
-	//septicTankRadius = 0
-	//acceleratedDevelopmentMultiplier = 0.5
-	allOrNothingPenalty = 400
-	totalAllOrNothingCurrency = 0
-	waveAllOrNothingCurrency = 0
-	lastWhirrRadius = 146
-	lastWhirrDmg = 25
-	lastWhirrReductionDistance = 2.88 //for rockets, splash dmg goes down by 1% for every 2.88hu of distance
+	aggressiveMercs_damageMultiplier 	= 1.25
+	healthyFighters_extraHealth			= 75
+	agileLegionnaires_speedMultiplier	= 1.2 
+	stockedUp_ammoMultiplier			= 3
+	bloostlust_critOnKillDuration		= 1
+	honorboost_damageMultiplier			= 1.5
+	antisupport_damageMultiplier		= 0.7
+	antisupport_speedMultiplier			= 0.7
+	sharpenedSteel_bleedDuration		= 5
+	regenerativeFactor_healthRegen		= 4
+	dwarfism_healthMultiplier			= 0.75
+	critWeakness_critDamageMultiplier	= 1.5
+	energySaving_speedMultiplier		= 0.9
+	heavyBomb_speedMultiplier			= 0.8
+	extraLoad_speedMultiplier			= 0.75
+	offensiveFocus_damageMultiplier		= 1.25
+	robotsOfSteel_rangedDmgMultiplier	= 0.6
+	robotsOfSteel_meleeDmgMultiplier	= 2
+	marathon_damageMultiplier			= 1.5
+	marathon_extraHealth				= 50
+	freedomania_fireRateMultiplier		= 0.65
+	freedomania_reloadSpeedMultiplier	= 0.65
+	inferno_damageMultiplier			= 1.5
+	inferno_flameDrag					= -2.5
+	pandemonium_reloadSpeedMultiplier	= 0.4
+	pandemonium_meleeDamageMultiplier	= 1.5
+	ironCurtain_knockbackMultiplier		= 0.01
+	ironCurtain_extraHealth				= 200
+	texasRangers_buildingHpMultiplier	= 1.5
+	texasRangers_sentryDamageMultiplier	= 1.25
+	germanTechnology_uberRateMultiplier	= 1.5
+	germanTechnology_extraUberDuration	= 4
+	australianRules_damageMultiplier	= 1.5
+	chateauBackstab_dmgTakenMultiplier	= 0.35
+	chateauBackstab_fireRateMultiplier	= 0.7
+	armoredGiants_healthMultiplier		= 1.3
+	armoredGiants_speedMultiplier		= 0.8
+	steelPlating_extraHealth			= 100
+	magicCoating_healthMultiplier		= 1.25
+	selfRepair_healthRegen				= 25
+	terrifyingTitans_damageMultiplier	= 1.25
+	rushdown_conditionNumber			= 29
+	deathWatch_healthDrain				= -5
+	superGiants_healthMultiplier		= 1.5
+	deepWounds_healingMultiplier		= 0.5
+	allOutOffense_healthMultiplier		= 0.5
+	allOutOffense_damageMultiplier		= 2
+	hatchGuard_miniSentry_1_origin 		= Vector(-131,115,90)
+	hatchGuard_miniSentry_2_origin 		= Vector(131,115,90)
+	hatchGuard_miniSentry_3_origin 		= Vector(-131,-149,90)
+	hatchGuard_miniSentry_4_origin 		= Vector(131,-149,90)
+	hatchGuard_miniSentry_1_angles	 	= "0 315 0"
+	hatchGuard_miniSentry_2_angles	 	= "0 225 0"
+	hatchGuard_miniSentry_3_angles 		= "0 315 0"
+	hatchGuard_miniSentry_4_angles 		= "0 225 0"
+	reinforcedMedics_healthMultiplier	= 2
+	reinforcedMedics_giantUberDeploy	= 75
+	divineSeal_minimumHealth			= 300
+	divineSeal_healingDuration			= 5
+	guerillaWarfare_delay				= 5
+	septicTank_radius 					= 0
+	hyperTanks_speedMultiplier			= 1.333
+	acceleratedDevelopment_multiplier 	= 0.5
+	sabotagedCircuits_duration			= 1
+	forcefulHeadstart_duration 			= 3
+	//V Multiply by 50 to get radius, cba with floats and integers V
+	protectTheCarrier_modelScale		= 2.56
+	protectTheCarrier_radius			= 128
+	protectTheCarrier_dmgReduction		= 0.6
+	protectTheCarrier_healthRegen		= 25
+	//septicTank_radius 					= 0
+	//acceleratedDevelopment_multiplier 	= 0.5
+	allOrNothing_penalty 				= 400
+	allOrNothing_totalCurrency 			= 0
+	allOrNothing_waveCurrency 			= 0
+	lastWhirr_radius 					= 146
+	lastWhirr_dmg 						= 25
+	lastWhirr_reductionDistance 		= 2.88 //for rockets, splash dmg goes down by 1% for every 2.88hu of distance
 }
 
 mutators.convarsToReset <- { //unsurprisingly these persist through rounds
@@ -137,8 +203,7 @@ function mutators::initPlayer(player) {
 }
 
 function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
-	mutator1 = "ironCurtain"
-	//mutator2 = "allOutOffense"
+	mutator1 = "protectTheCarrier"
 
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
@@ -215,6 +280,12 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		}
 
 		FireGameEvent("player_spawn", spawn)
+	}
+
+	foreach(mutator in activeMutators) {
+		if(mutator in mutators) {
+			mutators[mutator]()
+		}
 	}
 	waveFailed = false
 	//to do: need to run one time non player functions somehow (make a specific array of them?)

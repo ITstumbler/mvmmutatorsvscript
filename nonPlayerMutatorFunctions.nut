@@ -1,6 +1,6 @@
 //anything that doesn't need to be in player scope
 
-function mutators::tripleBombs() {
+function mutators::tripleTrouble() {
 	if(Entities.FindByName(null, "mutatorBomb1") != null) {
 		return;
 	}
@@ -34,11 +34,12 @@ function mutators::sabotagedCircuits() {
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "mutators.mutatorParams.sabotagedCircuits_duration", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(71, "+mutators.mutatorParams.sabotagedCircuits_duration+", null)", 0, -1)
 	}
 }
 
 function mutators::forcefulHeadstart() {
+	ClientPrint(null,3,"Henlo")
 	local bluRespawn = null;
 	
 	//make sure uber doesn't conflict with 51
@@ -46,13 +47,13 @@ function mutators::forcefulHeadstart() {
 		if(bluRespawn.GetTeam() != TF_TEAM_BLUE) {
 			continue;
 		}
-		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(5, "mutators.mutatorParams.forcefulHeadstart_duration", null)", 0, -1)
+		EntityOutputs.AddOutput(bluRespawn, "OnEndTouch", "!activator", "RunScriptCode", "self.AddCondEx(52, "+mutators.mutatorParams.forcefulHeadstart_duration+", null)", 0, -1)
 	}
 }
 
 function mutators::allOutOffense(bot) {
 	if(bot.HasBotAttribute(ALWAYS_CRIT)) {
-		bot.AddCustomAttribute("CARD: damage bonus", 2, -1)
+		bot.AddCustomAttribute("damage penalty", mutatorParams.allOutOffense_damageMultiplier, -1)
 	}
 	else {
 		bot.AddBotAttribute(ALWAYS_CRIT)
@@ -64,12 +65,27 @@ function mutators::allOutOffense(bot) {
 	//adjustMaxHp(bot, 0.5, true)
 }
 
+function mutators::reinforcedMedics(bot) {
+	if(bot.GetPlayerClass() != TF_CLASS_MEDIC) return
+	if(bot.IsMiniBoss()) {
+		bot.AddCustomAttribute("bot medic uber health threshold", mutatorParams.reinforcedMedics_giantUberDeploy, -1)
+	}
+	else {
+		local medicUberThreshold = bot.GetMaxHealth()
+		medicUberThreshold--
+		bot.AddCustomAttribute("bot medic uber health threshold", medicUberThreshold, -1)
+	}
+}
+
 function mutators::adjustMaxHp(bot, hpNum, isMultiplier = false, botCheck = null) {
+	if(botCheck == "nonGiants" && bot.IsMiniBoss()) return
 	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
 	if(botCheck == "nonBossGiants" && (!bot.IsMiniBoss() || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
 	if(botCheck == "allGiants" && !bot.IsMiniBoss()) return
 	local newMaxHp = bot.GetMaxHealth()
 	
+	if(activeMutators.find("reinforcedMedics") != null && bot.GetPlayerClass() == TF_CLASS_MEDIC) newMaxHp = newMaxHp * mutatorParams.reinforcedMedics_healthMultiplier
+
 	if(isMultiplier) {
 		newMaxHp = newMaxHp * hpNum
 	}
@@ -77,29 +93,37 @@ function mutators::adjustMaxHp(bot, hpNum, isMultiplier = false, botCheck = null
 		newMaxHp = newMaxHp + hpNum
 	}
 	
-	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp / 2
-	if(activeMutators.find("ironCurtain") != null && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) newMaxHp += 200
+	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp * allOutOffense_healthMultiplier
+	if(activeMutators.find("ironCurtain") != null && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) newMaxHp += mutatorParams.ironCurtain_extraHealth
+	
+	
 	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
 	bot.SetHealth(newMaxHp)
 }
 
 function mutators::adjustMaxHpInverse(bot, botCheck = null) {
+	if(botCheck == "nonGiants" && bot.IsMiniBoss()) return
 	if(botCheck == "nonBoss" && !bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
 	if(botCheck == "nonBossGiants" && (bot.IsMiniBoss() && !bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
 	if(botCheck == "allGiants" && bot.IsMiniBoss()) return
 	
 	local newMaxHp = bot.GetMaxHealth()
+
+	if(activeMutators.find("reinforcedMedics") != null && bot.GetPlayerClass() == TF_CLASS_MEDIC) newMaxHp = newMaxHp * mutatorParams.reinforcedMedics_healthMultiplier
 	
-	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp / 2
-	if(activeMutators.find("ironCurtain" && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) != null) newMaxHp += 200
-	bot.SetHealth(newMaxHp)
+	if(activeMutators.find("allOutOffense") != null) newMaxHp = newMaxHp * allOutOffense_healthMultiplier
+	if(activeMutators.find("ironCurtain" && bot.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) != null) newMaxHp += mutatorParams.ironCurtain_extraHealth
+	
+	
 	bot.AddCustomAttribute("max health additive bonus", -(bot.GetMaxHealth() - newMaxHp), -1)
+	bot.SetHealth(newMaxHp)
 }
 
 function mutators::addAttributeOnSpawn(player, attribute, value, classCheck=null, weaponRestriction=null, botCheck=null) {
-	if(botCheck == "nonBoss" && bot.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
-	if(botCheck == "nonBossGiants" && (!bot.IsMiniBoss() || bot.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
-	if(botCheck == "allGiants" && !bot.IsMiniBoss()) return
+	if(botCheck == "nonGiants" && player.IsMiniBoss()) return
+	if(botCheck == "nonBoss" && player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
+	if(botCheck == "nonBossGiants" && (!player.IsMiniBoss() || player.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && !player.IsMiniBoss()) return
 	if(classCheck != null && player.GetPlayerClass() != classCheck) return
 	if(weaponRestriction != null) {
 		for (local i = 0; i < 8; i++)
@@ -116,6 +140,15 @@ function mutators::addAttributeOnSpawn(player, attribute, value, classCheck=null
 	}
 }
 
+function mutators::addConditionOnSpawn(player, condition, classCheck=null, botCheck=null) {
+	if(botCheck == "nonGiants" && player.IsMiniBoss()) return
+	if(botCheck == "nonBoss" && player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) return
+	if(botCheck == "nonBossGiants" && (!player.IsMiniBoss() || player.HasBotAttribute(USE_BOSS_HEALTH_BAR))) return
+	if(botCheck == "allGiants" && !player.IsMiniBoss()) return
+	if(classCheck != null && player.GetPlayerClass() != classCheck) return
+	player.AddCond(condition)
+}
+
 function mutators::allOrNothing() {
 	local mvmStats = Entities.FindByClassname(null, "tf_mann_vs_machine_stats")
 	
@@ -128,7 +161,7 @@ function mutators::allOrNothing() {
 
 	scope.think <- function() {
 		local acquiredMoney = NetProps.GetPropInt(self, "m_currentWaveStat.nCreditsAcquired")
-		local currentMoney = mutators.mutatorParams.waveAllOrNothingCurrency
+		local currentMoney = mutators.mutatorParams.allOrNothing_waveCurrency
 		
 		if(acquiredMoney > currentMoney) {
 			local newMoney = acquiredMoney - currentMoney
@@ -136,10 +169,76 @@ function mutators::allOrNothing() {
 			foreach(index, player in players) {
 				player.AddCurrency(newMoney)
 			}
-			mutators.mutatorParams.waveAllOrNothingCurrency += newMoney
+			mutators.mutatorParams.allOrNothing_waveCurrency += newMoney
 		}
 	}
 	AddThinkToEnt(mvmStats, "think")
+}
+
+function mutators::hatchGuard(reset=false) {
+	if(reset) EntFire("hatchguard_minisentry", "kill")
+	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_1_origin, mutatorParams.hatchGuard_miniSentry_1_angles)
+	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_2_origin, mutatorParams.hatchGuard_miniSentry_2_angles)
+	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_3_origin, mutatorParams.hatchGuard_miniSentry_3_angles)
+	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_4_origin, mutatorParams.hatchGuard_miniSentry_4_angles)
+}
+
+function mutators::heavyBomb() {
+	local flag = null
+	while(flag = Entities.FindByClassname(flag, "item_teamflag")) {
+		EntityOutputs.AddOutput(flag, "OnPickup1", "!activator", "RunScriptCode", "applyHeavyBombDebuff()", 0, -1)
+	}
+}
+
+function mutators::spawnHatchGuardSentry(originParam,anglesParam) {
+	local miniSentry = SpawnEntityFromTable("obj_sentrygun", {
+		targetname = "hatchGuard_miniSentry"
+		origin = originParam
+		angles = anglesParam
+		Skin = 2
+		teamnum = 2
+		flags = 8
+	})
+	NetProps.SetPropBool(miniSentry, "m_bMiniBuilding", true)
+	miniSentry.SetModelScale(0.75, 0.0)
+	miniSentry.SetSkin(miniSentry.GetSkin() + 2)
+}
+
+function mutators::extraLoad() {
+	initializeTankSpeedAdjustor()
+}
+
+function mutators::hyperTanks() {
+	initializeTankSpeedAdjustor()
+}
+
+function mutators::initializeTankSpeedAdjustor() {
+	local path_left = Entities.FindByName(path_left, "boss_path_left_1")
+	EntityOutputs.AddOutput(path_left, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
+	local path_middle = Entities.FindByName(path_middle, "boss_path_middle_1")
+	EntityOutputs.AddOutput(path_middle, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
+	local path_right = Entities.FindByName(path_right, "boss_path_right_1")
+	EntityOutputs.AddOutput(path_right, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
+}
+
+function mutators::adjustTankSpeed() {
+	local tankSpeedMultiplier = 1
+	if (mutators.activeMutators.find("extraLoad") != null) {
+		tankSpeedMultiplier = mutators.mutatorParams.extraLoad_speedMultiplier
+	}
+	else if (mutators.activeMutators.find("hyperTanks") != null) {
+		tankSpeedMultiplier - mutators.mutatorParams.hyperTanks_speedMultiplier
+	}
+	local speed = self.GetLocomotionInterface().GetDesiredSpeed() * tankSpeedMultiplier;
+	EntFireByHandle(self, "SetSpeed", speed.tostring(), 0, null, null)
+}
+
+function mutators::protectTheCarrier() {
+	local flag = null
+	EntFire("bomb_shield_prop","kill")
+	while(flag = Entities.FindByClassname(flag, "item_teamflag")) {
+		EntityOutputs.AddOutput(flag, "OnPickup1", "!activator", "RunScriptCode", "protectTheCarrierBombPickup()", 0, -1)
+	}
 }
 
 function mutators::acceleratedDevelopment() {

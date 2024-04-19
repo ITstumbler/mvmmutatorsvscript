@@ -14,7 +14,7 @@ function think() {
 function guerillaWarfare() {
 	//printl("guerilla")
 	if(!self.InCond(TF_COND_STEALTHED_USER_BUFF)) {
-		guerillaTimer <- Time() + 5
+		guerillaTimer <- Time() + mutators.mutatorParams.guerillaWarfare_delay
 		delete thinkFunctions["guerillaWarfare"]
 		thinkFunctions["guerillaWarfareOff"] <- guerillaWarfareOff
 	}
@@ -23,7 +23,7 @@ function guerillaWarfare() {
 function guerillaWarfareOff() {
 	//printl("guerillaoff")
 	if(NetProps.GetPropInt(self, "m_nButtons") & IN_ATTACK) { //attacking, reset the counter
-		guerillaTimer = Time() + 5
+		guerillaTimer = Time() + mutators.mutatorParams.guerillaWarfare_delay
 	}
 	else if(Time() >= guerillaTimer) {
 		self.AddCondEx(TF_COND_STEALTHED_USER_BUFF, -1, null)

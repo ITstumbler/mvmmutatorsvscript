@@ -4,6 +4,8 @@ local scope = self.GetScriptScope()
 scope.thinkFunctions <- {}
 scope.divineSealCurrentlyHealing <- false
 scope.divineSealTimer <- -1
+scope.protectTheCarrierInRadius <- false
+scope.protectTheCarrierIsBombCarrier <- false
 
 function think() {
 	foreach(key, func in thinkFunctions) {
@@ -17,6 +19,132 @@ function divineSeal() {
 		divineSealCurrentlyHealing = false
 		self.SetHealth(self.GetMaxHealth())
 	}
+}
+
+function applyHeavyBombDebuff() {
+	if(mutators.activeMutators.find("energySaving") != null) {
+		self.AddCustomAttribute("CARD: move speed bonus", mutators.mutatorParams.heavyBomb_speedMultiplier * mutators.mutatorParams.energySaving_speedMultiplier, -1)
+	}
+	else {
+		self.AddCustomAttribute("CARD: move speed bonus", mutators.mutatorParams.heavyBomb_speedMultiplier, -1)
+	}
+}
+
+function protectTheCarrierBombPickup() {
+	scope.protectTheCarrierIsBombCarrier = true
+	local carrierOrigin = self.GetOrigin()
+	carrierOrigin = carrierOrigin + (self.HasBotAttribute(MINIBOSS) ? Vector(0,0,72) : Vector(0,0,40))
+	//NetProps.SetPropString(self, "m_iName", self.GetEntityIndex().tostring())
+
+	local bomb_shield_prop = SpawnEntityFromTable("prop_dynamic", {
+		targetname = "bomb_shield_prop"
+		origin = carrierOrigin
+		disableshadows = 1
+		model = "models/mutators/bomb_shield.mdl"
+		modelscale = mutators.mutatorParams.protectTheCarrier_modelScale
+		lightingorigin = "bright_lighting_info"
+	})
+
+    //EntFireByHandle(bomb_shield_prop, "SetParent", self.GetEntityIndex().tostring(), -1, bomb_shield_prop, null)
+	//bomb_shield_prop.SetModelScale(mutators.mutatorParams.protectTheCarrier_modelScale, 0.0)
+	//EntFireByHandle(bomb_shield_prop, "DisableShadows", 0, -1, bomb_shield_prop, null)
+	//EntFireByHandle(bomb_shield_prop, "SetParentAttachment", "flag", 0.03, bomb_shield_prop, null)
+
+	thinkFunctions["protectTheCarrierThink"] <- protectTheCarrierThink
+}
+
+function protectTheCarrierThink() {
+	//Particle names:
+	//mutator_bomb_shield_glow
+	//mutator_bomb_shield_giant_glow
+
+	if(NetProps.GetPropInt(self, "m_lifeState") != 0) {
+		delete thinkFunctions["protectTheCarrierThink"]
+		//bomb_shield_prop.Kill()
+		return
+	}
+
+	local carrierOrigin = self.GetOrigin()
+
+	local bomb_shield_prop = Entities.FindByName(null, "bomb_shield_prop")
+
+	if(bomb_shield_prop != null) {
+		local propGoalOrigin = carrierOrigin + (self.HasBotAttribute(MINIBOSS) ? Vector(0,0,72) : Vector(0,0,40))
+		bomb_shield_prop.SetAbsOrigin(propGoalOrigin)
+	}
+
+	for(local i = 1; i <= mutators.maxPlayers; i++) {
+		local nearbyBot = PlayerInstanceFromIndex(i)
+		if(nearbyBot == null) continue
+		if(!IsPlayerABot(nearbyBot)) continue
+		if(nearbyBot.GetTeam() != 3) continue
+
+		local nearbyBotOrigin = nearbyBot.GetOrigin()
+		local distanceX = pow(nearbyBotOrigin.x - carrierOrigin.x, 2)
+		local distanceY = pow(nearbyBotOrigin.y - carrierOrigin.y, 2)
+		local distanceZ = pow(nearbyBotOrigin.z - carrierOrigin.z, 2)
+		local rootedDistanceSum = pow(distanceX + distanceY + distanceZ, 0.5)
+
+		local nearbyBotScope = nearbyBot.GetScriptScope()
+
+		if(nearbyBotScope.protectTheCarrierInRadius == false && rootedDistanceSum <= mutators.mutatorParams.protectTheCarrier_radius) {
+			if(mutators.activeMutators.find("selfRepair") != null) {
+				nearbyBot.AddCustomAttribute("health drain", mutators.mutatorParams.protectTheCarrier_healthRegen + mutators.mutatorParams.selfRepair_healthRegen, -1)
+			}
+			else {
+				nearbyBot.AddCustomAttribute("health drain", mutators.mutatorParams.protectTheCarrier_healthRegen, -1)
+			}
+			
+			if(nearbyBot.GetPlayerClass() == TF_CLASS_SPY && mutators.activeMutators.find("chateauBackstab") != null) {
+				nearbyBot.AddCustomAttribute("dmg taken increased", mutators.mutatorParams.protectTheCarrier_dmgReduction * mutators.mutatorParams.chateauBackstab_dmgTakenMultiplier, -1)
+			}
+			else {
+				nearbyBot.AddCustomAttribute("dmg taken increased", mutators.mutatorParams.protectTheCarrier_dmgReduction, -1)
+			}
+
+			local particleName = null
+			NetProps.SetPropString(nearbyBot, "m_iName", nearbyBot.entindex().tostring())
+			particleName = nearbyBot.IsMiniBoss() ? "mutator_bomb_shield_giant_glow" : "mutator_bomb_shield_glow"
+			
+			local particle = SpawnEntityGroupFromTable({ //apparently need to use this for parentname
+				a = {
+					info_particle_system = {
+						targetname = "protectTheCarrier_particle_" + nearbyBot.entindex()
+						effect_name = particleName
+						start_active = true
+						origin = nearbyBot.GetOrigin()
+						parentname = nearbyBot.GetName()
+					}
+				}
+			})
+			nearbyBotScope.protectTheCarrierInRadius = true
+		}
+
+		if(nearbyBotScope.protectTheCarrierInRadius == true && rootedDistanceSum > mutators.mutatorParams.protectTheCarrier_radius) {
+			if(mutators.activeMutators.find("selfRepair") != null) {
+				nearbyBot.AddCustomAttribute("health drain", mutators.mutatorParams.selfRepair_healthRegen, -1)
+			}
+			else {
+				nearbyBot.RemoveCustomAttribute("health drain")
+			}
+			if(nearbyBot.GetPlayerClass() == TF_CLASS_SPY && mutators.activeMutators.find("chateauBackstab") != null) {
+				nearbyBot.AddCustomAttribute("dmg taken increased", mutators.mutatorParams.chateauBackstab_dmgTakenMultiplier, -1)
+			}
+			else {
+				nearbyBot.RemoveCustomAttribute("dmg taken increased")
+			}
+			nearbyBotScope.protectTheCarrierInRadius = false
+
+			local nearbyBotEntIndex = nearbyBot.entindex().tostring()
+			nearbyBotEntIndex = "protectTheCarrier_particle_" + nearbyBotEntIndex
+			local bomb_shield_particle = Entities.FindByName(null, nearbyBotEntIndex)
+			if(bomb_shield_particle) {
+				bomb_shield_particle.Kill()
+			}
+		}
+	}
+
+	return -1
 }
 
 //does setup for the main think
