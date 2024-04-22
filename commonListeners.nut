@@ -55,9 +55,12 @@ function mutators::OnGameEvent_player_hurt(params) {
 		local player = GetPlayerFromUserID(params.userid)
 		//threshold prob should be a var
 		//ent_fire !self runscriptcode "IncludeScript(`mvmmutatorsvscript/botMutatorFunctions.nut`)"
-		if(IsPlayerABot(player) && player.GetMaxHealth() > mutatorParams.divineSeal_minimumHealth && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
-			player.GetScriptScope().divineSealTimer = Time() + mutatorParams.divineSeal_healingDuration
+		if(IsPlayerABot(player) && player.GetMaxHealth() >= mutatorParams.divineSeal_minimumHealth && !player.HasBotAttribute(USE_BOSS_HEALTH_BAR)) {
+			player.GetScriptScope().divineSealHealTimer = Time() + mutatorParams.divineSeal_healingDuration
+			player.GetScriptScope().divineSealParticleTimer = Time() + mutatorParams.divineSeal_particleDisplayDelay
 			player.GetScriptScope().divineSealCurrentlyHealing = true
+			player.GetScriptScope().divineSealCurrentlyParticling = true
+			EntFireByHandle(player, "DispatchEffect", "ParticleEffectStop", -1, player, player)
 		}
 	}
 }
@@ -162,6 +165,13 @@ function mutators::OnGameEvent_player_spawn(params) {
 		}
 	}
 
+	if(activeMutators.find("juggernaut") != null) {
+		if(!IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `killstreak tier`, 1)", -1, player, null)
+			player.GetScriptScope().juggernautKillstreak = 0
+		}
+	}
+
 	if(activeMutators.find("offensiveFocus") != null) {
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `CARD: damage bonus`, "+mutatorParams.offensiveFocus_damageMultiplier+")", -1, player, null)
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `engy sentry damage bonus`, "+mutatorParams.offensiveFocus_damageMultiplier+")", -1, player, null)
@@ -195,7 +205,7 @@ function mutators::OnGameEvent_player_spawn(params) {
 	}
 
 	if(activeMutators.find("ironCurtain") != null && player.GetPlayerClass() == TF_CLASS_HEAVYWEAPONS) {
-		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage force reduction`, "+mutatorParams.ironCurtain_knockbackMultiplier+", 6)", -1, player, null)
+		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage force increase hidden`, "+mutatorParams.ironCurtain_knockbackMultiplier+", 6)", -1, player, null)
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vulnerability multiplier`, "+mutatorParams.ironCurtain_knockbackMultiplier+", 6)", -1, player, null)
 		EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vertical vulnerability multiplier`, "+mutatorParams.ironCurtain_knockbackMultiplier+", 6)", -1, player, null)
 		if(!IsPlayerABot(player)) {
@@ -293,6 +303,17 @@ function mutators::OnGameEvent_player_spawn(params) {
 			EntFireByHandle(player, "RunScriptCode", "mutators.allOutOffense(activator)", -1, player, null)
 		}
 	}
+
+	if(activeMutators.find("purifyingEmblem") != null) {
+		if(IsPlayerABot(player)) {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `damage force increase hidden`, 0.01)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vulnerability multiplier hidden`, 0.01)", -1, player, null)
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `airblast vertical vulnerability multiplier`, 0.01)", -1, player, null)
+		}
+		else {
+			EntFireByHandle(player, "RunScriptCode", "mutators.addAttributeOnSpawn(activator, `slow enemy on hit`, 0, null, 41)", -1, player, null)
+		}
+	}
 }
 
 function mutators::OnGameEvent_player_disconnect(params) {
@@ -315,23 +336,55 @@ function mutators::OnGameEvent_player_death(params) {
 	if(activeMutators.find("protectTheCarrier") != null) {
 		if(player.GetScriptScope().protectTheCarrierIsBombCarrier == true) {
 			EntFire("bomb_shield_prop", "kill")
+			player.GetScriptScope().protectTheCarrierIsBombCarrier = false
 		}
 		local protectTheCarrierParticle = Entities.FindByName(null, "protectTheCarrier_particle_" + player.entindex())
 		if(protectTheCarrierParticle) {
 			protectTheCarrierParticle.Kill()
 		}
 	}
+
+	if(activeMutators.find("juggernaut") != null) {
+		if(IsPlayerABot(player)) {
+			local killer = GetPlayerFromUserID(params.attacker)
+			if(killer.GetScriptScope().juggernautKillstreak < mutatorParams.juggernaut_killCap) killer.GetScriptScope().juggernautKillstreak += 1
+
+			local damageMultiplier = 1
+			if(activeMutators.find("aggressiveMercs") != null) damageMultiplier = mutatorParams.aggressiveMercs_damageMultiplier
+			// ClientPrint(null,3,"Base damage multiplier is " + damageMultiplier)
+			// ClientPrint(null,3,"Damage multiplier per kill is " + mutatorParams.juggernaut_damageMultiplierPerKill)
+			// ClientPrint(null,3,"Killstreak is " + killer.GetScriptScope().juggernautKillstreak)
+			// ClientPrint(null,3,"Everything multiplied is " + (damageMultiplier * (mutatorParams.juggernaut_damageMultiplierPerKill * killer.GetScriptScope().juggernautKillstreak)))
+			damageMultiplier = damageMultiplier + (damageMultiplier * (mutatorParams.juggernaut_damageMultiplierPerKill * killer.GetScriptScope().juggernautKillstreak))
+
+			killer.AddCustomAttribute("dmg penalty vs players", damageMultiplier, -1)
+		}
+	}
 	
 	if(activeMutators.find("lastWhirr") != null) {
 		if(player.GetTeam() == TF_TEAM_BLUE) {
 			local victim = null
+
+			local particle = SpawnEntityGroupFromTable({ //apparently need to use this for parentname
+				a = {
+					info_particle_system = {
+						targetname = "lastWhirr_particle_" + player.entindex()
+						effect_name = "ExplosionCore_MidAir"
+						start_active = true
+						origin = player.GetCenter()
+					}
+				}
+			})
+
+			EntFireByHandle(particle, "Kill", "", 0.2, particle, particle)
 			
 			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutatorParams.lastWhirr_radius)) {
 				if(victim.GetTeam() == TF_TEAM_RED) {
 					local distance = (victim.GetCenter() - player.GetCenter()).Length()
+
 					local shouldDamage = true
 					printl("distance " + distance)
-					DebugDrawCircle(player.GetCenter(), Vector(255, 0, 0), 127, mutatorParams.lastWhirr_radius, true, 1)
+					//DebugDrawCircle(player.GetCenter(), Vector(255, 0, 0), 127, mutatorParams.lastWhirr_radius, true, 1)
 					
 					local traceTable = {
 						start = player.GetCenter()
@@ -354,6 +407,10 @@ function mutators::OnGameEvent_player_death(params) {
 				}
 			}
 		}
+	}
+
+	if(activeMutators.find("purifyingEmblem") != null || activeMutators.find("divineSeal") != null) {
+		EntFireByHandle(player, "DispatchEffect", "ParticleEffectStop", -1, player, player)
 	}
 }
 

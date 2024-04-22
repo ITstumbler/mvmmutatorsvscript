@@ -129,9 +129,12 @@ function mutators::addAttributeOnSpawn(player, attribute, value, classCheck=null
 		for (local i = 0; i < 8; i++)
 		{
 			local weapon = NetProps.GetPropEntityArray(player, "m_hMyWeapons", i)
+			
 			if (weapon == null) continue
+			//ClientPrint(null,3,""+NetProps.GetPropInt(weapon, "m_AttributeManager.m_Item.m_iItemDefinitionIndex"))
 			if (weapon.IsMeleeWeapon() && weaponRestriction == "melee") weapon.AddAttribute(attribute, value, -1)
 			if (weapon.GetClassname() == weaponRestriction) weapon.AddAttribute(attribute, value, -1)
+			if (NetProps.GetPropInt(weapon, "m_AttributeManager.m_Item.m_iItemDefinitionIndex") == weaponRestriction) weapon.AddAttribute(attribute, value, -1)
 		}
 	}
 	else {
@@ -147,6 +150,17 @@ function mutators::addConditionOnSpawn(player, condition, classCheck=null, botCh
 	if(botCheck == "allGiants" && !player.IsMiniBoss()) return
 	if(classCheck != null && player.GetPlayerClass() != classCheck) return
 	player.AddCond(condition)
+}
+
+function mutators::ourBenefactors() {
+	ClientPrint(null,3,"Man holy shit")
+	foreach(i, player in players) {
+		EntFireByHandle(player, "RunScriptCode", "mutators.ourBenefactorsAddMoney(activator)", 0.5, player, null)
+	}
+}
+
+function mutators::ourBenefactorsAddMoney(player) {
+	player.AddCurrency(mutatorParams.ourBenefactors_bonusMoney)
 }
 
 function mutators::allOrNothing() {
@@ -176,7 +190,12 @@ function mutators::allOrNothing() {
 }
 
 function mutators::hatchGuard(reset=false) {
-	if(reset) EntFire("hatchguard_minisentry", "kill")
+	if(reset) {
+		local hatchGuard_miniSentry = null
+		while(hatchGuard_miniSentry = Entities.FindByName(hatchGuard_miniSentry, "hatchGuard_miniSentry")) {
+			hatchGuard_miniSentry.Kill()
+		}
+	}
 	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_1_origin, mutatorParams.hatchGuard_miniSentry_1_angles)
 	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_2_origin, mutatorParams.hatchGuard_miniSentry_2_angles)
 	spawnHatchGuardSentry(mutatorParams.hatchGuard_miniSentry_3_origin, mutatorParams.hatchGuard_miniSentry_3_angles)
@@ -213,12 +232,49 @@ function mutators::hyperTanks() {
 }
 
 function mutators::initializeTankSpeedAdjustor() {
-	local path_left = Entities.FindByName(path_left, "boss_path_left_1")
+	local path_left = Entities.FindByName(null, "boss_path_left_1")
 	EntityOutputs.AddOutput(path_left, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
-	local path_middle = Entities.FindByName(path_middle, "boss_path_middle_1")
+	local path_middle = Entities.FindByName(null, "boss_path_middle_1")
 	EntityOutputs.AddOutput(path_middle, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
-	local path_right = Entities.FindByName(path_right, "boss_path_right_1")
+	local path_right = Entities.FindByName(null, "boss_path_right_1")
 	EntityOutputs.AddOutput(path_right, "OnPass", "!activator", "RunScriptCode", "mutators.adjustTankSpeed()", 0, -1)
+}
+
+function mutators::divineSeal() {
+	local divineSeal_healWarningParticles = SpawnEntityFromTable("trigger_particle",
+	{
+		targetname = "divineSeal_healWarningParticles"
+		particle_name = "divineSeal_healWarning",
+		attachment_type = 6,
+		spawnflags = 1
+	})
+	local divineSeal_healBoomParticles = SpawnEntityFromTable("trigger_particle",
+	{
+		targetname = "divineSeal_healBoomParticles"
+		particle_name = "divineSeal_healBoom",
+		attachment_type = 6,
+		spawnflags = 1
+	})
+}
+
+
+function mutators::septicTank() {
+	local path_left = Entities.FindByName(null, "boss_path_left_1")
+	EntityOutputs.AddOutput(path_left, "OnPass", "!activator", "RunScriptCode", "mutators.addSepticTankOutput()", 0, -1)
+	local path_middle = Entities.FindByName(null, "boss_path_middle_1")
+	EntityOutputs.AddOutput(path_middle, "OnPass", "!activator", "RunScriptCode", "mutators.addSepticTankOutput()", 0, -1)
+	local path_right = Entities.FindByName(null, "boss_path_right_1")
+	EntityOutputs.AddOutput(path_right, "OnPass", "!activator", "RunScriptCode", "mutators.addSepticTankOutput()", 0, -1)
+}
+
+function mutators::addSepticTankOutput() {
+	EntityOutputs.AddOutput(activator, "OnKilled", "!self", "RunScriptCode", "mutators.septicTankExplode()", 0, -1)
+}
+
+function mutators::septicTankExplode() {
+	ClientPrint(null,3,"JARATE!")
+	local tankOrigin = activator.GetOrigin()
+	ClientPrint(null,3,"Haha "+tankOrigin)
 }
 
 function mutators::adjustTankSpeed() {
@@ -227,10 +283,10 @@ function mutators::adjustTankSpeed() {
 		tankSpeedMultiplier = mutators.mutatorParams.extraLoad_speedMultiplier
 	}
 	else if (mutators.activeMutators.find("hyperTanks") != null) {
-		tankSpeedMultiplier - mutators.mutatorParams.hyperTanks_speedMultiplier
+		tankSpeedMultiplier = mutators.mutatorParams.hyperTanks_speedMultiplier
 	}
-	local speed = self.GetLocomotionInterface().GetDesiredSpeed() * tankSpeedMultiplier;
-	EntFireByHandle(self, "SetSpeed", speed.tostring(), 0, null, null)
+	local speed = activator.GetLocomotionInterface().GetDesiredSpeed() * tankSpeedMultiplier;
+	EntFireByHandle(activator, "SetSpeed", speed.tostring(), 0, null, null)
 }
 
 function mutators::protectTheCarrier() {
@@ -255,3 +311,20 @@ function mutators::acceleratedDevelopment() {
 
 //and you need to store the total variable of extra cash collected in previous waves, this wave in global variables
 //remove current wave cash upon wave fail and regive cash collected in previous waves
+
+function mutators::purifyingEmblem() {
+	local purifyingEmblem_constantParticles = SpawnEntityFromTable("trigger_particle",
+	{
+		targetname = "purifyingEmblem_constantParticles"
+		particle_name = "purifyingEmblem_constantStatusDenied",
+		attachment_type = 6,
+		spawnflags = 1
+	})
+	local purifyingEmblem_bigParticles = SpawnEntityFromTable("trigger_particle",
+	{
+		targetname = "purifyingEmblem_bigParticles"
+		particle_name = "purifyingEmblem_bigStatusDenied",
+		attachment_type = 6,
+		spawnflags = 1
+	})
+}

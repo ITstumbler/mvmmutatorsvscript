@@ -64,7 +64,7 @@ mutators.descriptions <- {
 	"critWeakness": {description = "\x0700de5cCrit Weakness\x07FBECCB: \x0747f08dNon-tank robots take 1.5x damage from crits", points = -2500}
 	"energySaving": {description = "\x0700de5cEnergy Saving\x07FBECCB: \x0747f08dNon-tank robots move 10% slower", points = -1500}
 	"hatchGuard": {description = "\x0700de5cHatch Guard\x07FBECCB: \x0747f08d4 friendly mini-sentries help protect hatch", points = -1750}
-	"juggernaut": {description = "\x0700de5cJuggernaut\x07FBECCB: \x0747f08dPlayers gain Reflect powerup. Players do not gain its max health increase", points = -2000}
+	"juggernaut": {description = "\x0700de5cJuggernaut\x07FBECCB: \x0747f08dPlayers gain bonus damage with every kill. Bonus damage is lost on death", points = -3000}
 	"ourBenefactors": {description = "\x0700de5cOur Benefactors\x07FBECCB: \x0747f08dStart with an additional $800", points = -3000}
 	"sabotagedCircuits": {description = "\x0700de5cSabotaged Circuits\x07FBECCB: \x0747f08dRobots are stunned for 1 second upon exiting spawn", points = -1500}
 	"marathon": {description = "\x07f3f705Marathon\x07FBECCB: \x07fcff65Scout players and robots gain 1.5x damage and +50 max health", points = 0}
@@ -82,10 +82,10 @@ mutators.descriptions <- {
 	"robotsOfSteel": {description = "\x07f3f705Robots of Steel\x07FBECCB: \x07fcff65Robots take 40% less damage from ranged sources but 100% more damage from melee", points = 0}
 	"steelPlating": {description = "\x07f70505Steel Plating\x07FBECCB: \x07ff4d4dRobots gain +100 max health", points = 2250}
 	"magicCoating": {description = "\x07f70505Magic Coating\x07FBECCB: \x07ff4d4dNon-boss robots gain +25% max health", points = 2500}
-	"divineSeal": {description = "\x07f70505Divine Seal\x07FBECCB: \x07ff4d4dNon-boss robots recover all health when not damaged for 5 seconds", points = 2000}
+	"divineSeal": {description = "\x07f70505Divine Seal\x07FBECCB: \x07ff4d4dNon-boss robots recover all health when not damaged for 5 seconds", points = 2500}
 	"allOutOffense": {description = "\x07f70505All-Out Offense\x07FBECCB: \x07ff4d4dRobots gain crits and -50% max health. Robots with innate crits gain 2x damage instead", points = 1000}
 	"acceleratedDevelopment": {description = "\x07f70505Accelerated Development\x07FBECCB: \x07ff4d4dRobots gain bomb buffs very quickly. Giants can also get bomb buffs", points = 3000}
-	"lastWhirr": {description = "\x07f70505Last Whirr\x07FBECCB: \x07ff4d4dRobots explode on death, dealing 25 damage to all nearby players", points = 2500}
+	"lastWhirr": {description = "\x07f70505Last Whirr\x07FBECCB: \x07ff4d4dRobots explode on death, dealing damage to all nearby players", points = 2500}
 	"forcefulHeadstart": {description = "\x07f70505Forceful Headstart\x07FBECCB: \x07ff4d4dRobots gain 3 seconds of uber upon exiting spawn", points = 1500}
 	"selfRepair": {description = "\x07f70505Self-Repair\x07FBECCB: \x07ff4d4dRobots gain 25 health regen", points = 1500}
 	"terrifyingTitans": {description = "\x07f70505Terrifying Titans\x07FBECCB: \x07ff4d4dGiant robots deal 1.25x damage", points = 2250}
@@ -119,6 +119,9 @@ mutators.mutatorParams <- {
 	energySaving_speedMultiplier		= 0.9
 	heavyBomb_speedMultiplier			= 0.8
 	extraLoad_speedMultiplier			= 0.75
+	juggernaut_damageMultiplierPerKill	= 0.005
+	juggernaut_killCap					= 200
+	ourBenefactors_bonusMoney			= 800
 	offensiveFocus_damageMultiplier		= 1.25
 	robotsOfSteel_rangedDmgMultiplier	= 0.6
 	robotsOfSteel_meleeDmgMultiplier	= 2
@@ -151,20 +154,21 @@ mutators.mutatorParams <- {
 	deepWounds_healingMultiplier		= 0.5
 	allOutOffense_healthMultiplier		= 0.5
 	allOutOffense_damageMultiplier		= 2
-	hatchGuard_miniSentry_1_origin 		= Vector(-131,115,90)
-	hatchGuard_miniSentry_2_origin 		= Vector(131,115,90)
-	hatchGuard_miniSentry_3_origin 		= Vector(-131,-149,90)
-	hatchGuard_miniSentry_4_origin 		= Vector(131,-149,90)
+	hatchGuard_miniSentry_1_origin 		= Vector(-131,115,72)
+	hatchGuard_miniSentry_2_origin 		= Vector(131,115,72)
+	hatchGuard_miniSentry_3_origin 		= Vector(-131,-149,72)
+	hatchGuard_miniSentry_4_origin 		= Vector(131,-149,72)
 	hatchGuard_miniSentry_1_angles	 	= "0 315 0"
 	hatchGuard_miniSentry_2_angles	 	= "0 225 0"
 	hatchGuard_miniSentry_3_angles 		= "0 315 0"
 	hatchGuard_miniSentry_4_angles 		= "0 225 0"
 	reinforcedMedics_healthMultiplier	= 2
 	reinforcedMedics_giantUberDeploy	= 75
-	divineSeal_minimumHealth			= 300
+	divineSeal_minimumHealth			= 500
 	divineSeal_healingDuration			= 5
+	divineSeal_particleDisplayDelay		= 1.5
 	guerillaWarfare_delay				= 5
-	septicTank_radius 					= 0
+	septicTank_radius 					= 512
 	hyperTanks_speedMultiplier			= 1.333
 	acceleratedDevelopment_multiplier 	= 0.5
 	sabotagedCircuits_duration			= 1
@@ -174,14 +178,22 @@ mutators.mutatorParams <- {
 	protectTheCarrier_radius			= 128
 	protectTheCarrier_dmgReduction		= 0.6
 	protectTheCarrier_healthRegen		= 25
+	inflammableSkin_condition			= 30
 	//septicTank_radius 					= 0
 	//acceleratedDevelopment_multiplier 	= 0.5
 	allOrNothing_penalty 				= 400
 	allOrNothing_totalCurrency 			= 0
 	allOrNothing_waveCurrency 			= 0
 	lastWhirr_radius 					= 146
-	lastWhirr_dmg 						= 25
+	lastWhirr_dmg 						= 30
 	lastWhirr_reductionDistance 		= 2.88 //for rockets, splash dmg goes down by 1% for every 2.88hu of distance
+	//Constant conditions display a continuous minor particle effect when players try to inflict them
+	//Afterburn is separate because afterburn sucks
+	//Big conditions display a big flashy cleansing particle when players try to inflict them
+	//Stun (condition 15) should be here but it doesn't work lma
+	purifyingEmblem_noParticlesConds	= [118] //Flamethrower healing debuff
+	purifyingEmblem_constantConds		= [15, 22, 25] //stun, burning, bleeding
+	purifyingEmblem_bigConds			= [24, 27, 30, 50, 123] //Jarate'd, milked, marked-for-death, sapped, gas passer
 }
 
 mutators.convarsToReset <- { //unsurprisingly these persist through rounds
@@ -203,7 +215,7 @@ function mutators::initPlayer(player) {
 }
 
 function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
-	mutator1 = "protectTheCarrier"
+	mutator1 = "lastWhirr"
 
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)

@@ -2,12 +2,22 @@
 local scope = self.GetScriptScope()
 scope.allOrNothingTotalPenalty <- 0
 scope.allOrNothingWavePenalty <- 0
+scope.juggernautKillstreak <- 0
 
 scope.thinkFunctions <- {}
 
 function think() {
 	foreach(key, func in thinkFunctions) {
 		func()
+	}
+}
+
+function inflammableSkin() {
+	if(self.InCond(TF_COND_BURNING)) {
+		self.AddCond(mutators.mutatorParams.inflammableSkin_condition)
+	}
+	else {
+		self.RemoveCond(mutators.mutatorParams.inflammableSkin_condition)
 	}
 }
 

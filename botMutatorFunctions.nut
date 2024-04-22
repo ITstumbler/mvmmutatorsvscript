@@ -2,10 +2,14 @@
 local scope = self.GetScriptScope()
 
 scope.thinkFunctions <- {}
+scope.divineSealCurrentlyParticling <- false
 scope.divineSealCurrentlyHealing <- false
-scope.divineSealTimer <- -1
+scope.divineSealParticleTimer <- -1
+scope.divineSealHealTimer <- -1
 scope.protectTheCarrierInRadius <- false
 scope.protectTheCarrierIsBombCarrier <- false
+scope.purifyingEmblemParticlePlaying <- false
+scope.purifyingEmblemParticleTimer <- 1
 
 function think() {
 	foreach(key, func in thinkFunctions) {
@@ -13,11 +17,47 @@ function think() {
 	}
 }
 
+function purifyingEmblem() {
+	//Particle names:
+	//purifyingEmblem_bigStatusDenied
+	//purifyingEmblem_constantStatusDenied
+	foreach(i, cond in mutators.mutatorParams.purifyingEmblem_noParticlesConds) {
+		if(self.InCond(cond)) self.RemoveCondEx(cond, true)
+	}
+	foreach(i, cond in mutators.mutatorParams.purifyingEmblem_constantConds) {
+		if(self.InCond(cond)) {
+			self.ExtinguishPlayerBurning() //Mfw hardcode because removecond doesnt work
+			self.RemoveCondEx(cond, true)
+			scope.purifyingEmblemParticleTimer = Time() + 2
+			if(scope.purifyingEmblemParticlePlaying == false) {
+				DoEntFire("purifyingEmblem_constantParticles", "StartTouch", "!activator", -1, self, self)
+				scope.purifyingEmblemParticlePlaying = true
+			}
+		}
+	}
+	foreach(i, cond in mutators.mutatorParams.purifyingEmblem_bigConds) {
+		if(self.InCond(cond)) {
+			self.RemoveCondEx(cond, true)
+			DoEntFire("purifyingEmblem_bigParticles", "StartTouch", "!activator", -1, self, self)
+		}
+	}
+	if(Time() > scope.purifyingEmblemParticleTimer && scope.purifyingEmblemParticlePlaying) {
+		EntFireByHandle(self, "DispatchEffect", "ParticleEffectStop", -1, self, self)
+		scope.purifyingEmblemParticlePlaying = false
+	}
+	return -1
+}
+
 function divineSeal() {
-	//printl("divine sealing rn")
-	if(Time() >= divineSealTimer && divineSealCurrentlyHealing) {
+	if(Time() >= divineSealParticleTimer && divineSealCurrentlyParticling) {
+		divineSealCurrentlyParticling = false
+		DoEntFire("divineSeal_healWarningParticles", "StartTouch", "!activator", -1, self, self)
+	}
+	if(Time() >= divineSealHealTimer && divineSealCurrentlyHealing) {
 		divineSealCurrentlyHealing = false
 		self.SetHealth(self.GetMaxHealth())
+		DoEntFire("divineSeal_healBoomParticles", "StartTouch", "!activator", -1, self, self)
+		EntFireByHandle(self, "DispatchEffect", "ParticleEffectStop", 0.2, self, self)
 	}
 }
 
@@ -58,6 +98,10 @@ function protectTheCarrierThink() {
 	//mutator_bomb_shield_glow
 	//mutator_bomb_shield_giant_glow
 
+	// if(self.GetScriptScope().protectTheCarrierIsBombCarrier) {
+	// 	ClientPrint(null,3,"Is carrier: "+self.entindex().tostring())
+	// }
+
 	if(NetProps.GetPropInt(self, "m_lifeState") != 0) {
 		delete thinkFunctions["protectTheCarrierThink"]
 		//bomb_shield_prop.Kill()
@@ -78,6 +122,7 @@ function protectTheCarrierThink() {
 		if(nearbyBot == null) continue
 		if(!IsPlayerABot(nearbyBot)) continue
 		if(nearbyBot.GetTeam() != 3) continue
+		if(NetProps.GetPropInt(nearbyBot, "m_lifeState") != 0) continue
 
 		local nearbyBotOrigin = nearbyBot.GetOrigin()
 		local distanceX = pow(nearbyBotOrigin.x - carrierOrigin.x, 2)
