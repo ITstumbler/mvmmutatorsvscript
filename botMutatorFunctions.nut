@@ -208,12 +208,12 @@ function acceleratedDevelopmentHasBomb() {
 	particleTarget <- particleAttachment
 	buffTimer <- null
 	
-	NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 0)
-	NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-	NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+	NetProps.SetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel", 0)
+	NetProps.SetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime", Time())
+	NetProps.SetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime", Time() 
 		+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade"))
 	
-	upgradeTime <- NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+	upgradeTime <- NetProps.GetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime")
 	
 	thinkFunctions["acceleratedDevelopmentThink"] <- acceleratedDevelopmentThink
 }
@@ -225,18 +225,18 @@ function acceleratedDevelopmentThink() {
 	if(navTile != null && navTile.HasAttributeTF(TF_NAV_SPAWN_ROOM_BLUE)) {
 		//procrastinate ticking the timer
 		//this may need reworked considering how this normally works
-		printl("in spawnroom, haven't started timer")
-		NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-		NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+		//printl("in spawnroom, haven't started timer")
+		NetProps.SetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime", Time())
+		NetProps.SetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime", Time() 
 			+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_1st_upgrade"))
-		upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+		upgradeTime = NetProps.GetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime")
 		return;
 	}
 	
-	printl(Time())
-	//printl(NetProps.GetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime"))
-	printl(NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime"))
-	//printl(NetProps.GetPropInt(objResource, "m_nFlagCarrierUpgradeLevel"))
+	//printl(Time())
+	//printl(NetProps.GetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime"))
+	//printl(NetProps.GetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime"))
+	//printl(NetProps.GetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel"))
 	
 	//if dead, stop this func
 	if(NetProps.GetPropInt(self, "m_lifeState") != 0) {
@@ -249,22 +249,22 @@ function acceleratedDevelopmentThink() {
 	//ent_fire player runscriptcode "AddThinkToEnt(self, `think`)"
 	
 	if(Time() >= upgradeTime) { //enough time has passed, time to upgrade
-		local upgradeLevel = NetProps.GetPropInt(objResource, "m_nFlagCarrierUpgradeLevel")
+		local upgradeLevel = NetProps.GetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel")
 		if(upgradeLevel < 3) {
 			EntFire("tf_gamerules", "PlayVO", "MVM.Warning", -1)
 		
 			switch(upgradeLevel) {
 				case 0:				
-					self.Taunt(TAUNT_BASE_WEAPON, null)
+					self.Taunt(TAUNT_BASE_WEAPON, 11)
 					
-					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 1)
-					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+					NetProps.SetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel", 1)
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime", Time())
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime", Time() 
 						+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_2nd_upgrade"))
 					
-					upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+					upgradeTime = NetProps.GetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime")
 					
-					foreach(i, player in players) {
+					foreach(i, player in mutators.players) {
 						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade1:1", -1, null, null)
 						//the concept rules handle the chance
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE1", -1, null, null)
@@ -273,16 +273,16 @@ function acceleratedDevelopmentThink() {
 					buffTimer = Time()
 					break;
 				case 1:
-					self.Taunt(TAUNT_BASE_WEAPON, null)
+					self.Taunt(TAUNT_BASE_WEAPON, 11)
 					
-					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 2)
-					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", Time())
-					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", Time() 
+					NetProps.SetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel", 2)
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime", Time())
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime", Time() 
 						+ Convars.GetFloat("tf_mvm_bot_flag_carrier_interval_to_3rd_upgrade"))
 					
-					upgradeTime = NetProps.GetPropFloat(objResource, "m_flMvMNextBombUpgradeTime")
+					upgradeTime = NetProps.GetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime")
 					
-					foreach(i, player in players) {
+					foreach(i, player in mutators.players) {
 						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade2:1", -1, null, null)
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE2", -1, null, null)
 					}
@@ -290,12 +290,12 @@ function acceleratedDevelopmentThink() {
 					self.AddCustomAttribute("CARD: health regen", Convars.GetFloat("tf_mvm_bot_flag_carrier_health_regen"), -1)
 					break;
 				case 2:
-					self.Taunt(TAUNT_BASE_WEAPON, null)
+					self.Taunt(TAUNT_BASE_WEAPON, 11)
 				
-					NetProps.SetPropInt(objResource, "m_nFlagCarrierUpgradeLevel", 3)
-					NetProps.SetPropFloat(objResource, "m_flMvMBaseBombUpgradeTime", -1)
-					NetProps.SetPropFloat(objResource, "m_flMvMNextBombUpgradeTime", -1)
-					foreach(i, player in players) {
+					NetProps.SetPropInt(mutators.objResource, "m_nFlagCarrierUpgradeLevel", 3)
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMBaseBombUpgradeTime", -1)
+					NetProps.SetPropFloat(mutators.objResource, "m_flMvMNextBombUpgradeTime", -1)
+					foreach(i, player in mutators.players) {
 						EntFireByHandle(player, "AddContext", "ConceptMvMBombCarrierUpgrade3:1", -1, null, null)
 						EntFireByHandle(player, "SpeakResponseConcept", "TLK_MVM_BOMB_CARRIER_UPGRADE3", -1, null, null)
 					}

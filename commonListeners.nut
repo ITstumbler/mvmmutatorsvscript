@@ -364,7 +364,7 @@ function mutators::OnGameEvent_player_death(params) {
 	if(activeMutators.find("lastWhirr") != null) {
 		if(player.GetTeam() == TF_TEAM_BLUE) {
 			local victim = null
-			
+
 			/*
 			local particle = SpawnEntityGroupFromTable({ //apparently need to use this for parentname
 				a = {
@@ -380,6 +380,8 @@ function mutators::OnGameEvent_player_death(params) {
 			*/
 			
 			DispatchParticleEffect("ExplosionCore_MidAir", player.GetCenter(), QAngle(0, 0, 0))
+
+			//EntFireByHandle(particle, "Kill", "", 0.2, particle, particle)
 			
 			while(victim = Entities.FindByClassnameWithin(victim, "player", player.GetCenter(), mutatorParams.lastWhirr_radius)) {
 				if(victim.GetTeam() == TF_TEAM_RED) {

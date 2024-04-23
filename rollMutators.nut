@@ -215,7 +215,7 @@ function mutators::initPlayer(player) {
 }
 
 function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
-	mutator1 = "lastWhirr"
+	mutator1 = "acceleratedDevelopment"
 
 	local choiceArray = []
 	choiceArray.extend(mutatorCategories)
