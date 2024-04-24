@@ -10,6 +10,7 @@ mutators.maxPlayers <- MaxClients().tointeger()
 mutators.objResource <- Entities.FindByClassname(null, "tf_objective_resource")
 mutators.players <- {}
 mutators.waveFailed <- false
+mutators.buttonReset <- false
 
 // if(mutators.waveFailed) {
 // 	mutators.waveFailed = false
@@ -17,9 +18,9 @@ mutators.waveFailed <- false
 // }
 
 //maybe rename
-mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionnaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport", 
+mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionnaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport",
 	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
-		"ourBenefactors", "allOrNothing", "offensiveFocus", "allOutOffense", "acceleratedDevelopment", "terrifyingTitans", 
+		"ourBenefactors", "allOrNothing", "offensiveFocus", "allOutOffense", "acceleratedDevelopment", "terrifyingTitans",
 		"rushdown", "deathWatch", "reinforcedMedics", "deepWounds", "protectTheCarrier", "septicTank", "tripleTrouble", "inflammableSkin"]
 
 mutators.meleeMutators <- ["honorboost", "robotsOfSteel"]
@@ -40,7 +41,7 @@ mutators.deathMutators <- ["lastWhirr"]
 
 mutators.classMutators <- ["marathon", "freedomania", "inferno", "pandemonium", "ironCurtain", "texasRangers", "germanTechnology",
 	"australianRules", "chateauBackstab"]
-	
+
 mutators.mutatorCategories <- [mutators.genericMutators, mutators.meleeMutators, mutators.statusMutators,
 	mutators.healthMutators, mutators.regenMutators, mutators.tankMutators, mutators.spawnMutators,
 	mutators.classMutators]
@@ -106,7 +107,7 @@ mutators.descriptions <- {
 mutators.mutatorParams <- {
 	aggressiveMercs_damageMultiplier 	= 1.25
 	healthyFighters_extraHealth			= 75
-	agileLegionnaires_speedMultiplier	= 1.2 
+	agileLegionnaires_speedMultiplier	= 1.2
 	stockedUp_ammoMultiplier			= 3
 	bloostlust_critOnKillDuration		= 1
 	honorboost_damageMultiplier			= 1.5
@@ -210,34 +211,38 @@ IncludeScript("mvmmutatorsvscript/nonPlayerMutatorFunctions.nut")
 function mutators::initPlayer(player) {
 	player.ValidateScriptScope()
 	local scope = player.GetScriptScope()
-	
+
 	IncludeScript("mvmmutatorsvscript/playerMutatorFunctions.nut", scope)
 }
 
-function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
-	mutator1 = "acceleratedDevelopment"
-
-	local choiceArray = []
-	choiceArray.extend(mutatorCategories)
-	activeMutators = []
-
+function mutators::initMutators(mutator1 = null, mutator2 = null, mutator3 = null) {
 	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		
+
 		if(!IsPlayerABot(player)) {
 			players[i] <- player
-			
+
 			initPlayer(player)
 		}
 		else {
 			player.ValidateScriptScope()
 			local scope = player.GetScriptScope()
-	
+
 			IncludeScript("mvmmutatorsvscript/botMutatorFunctions.nut", scope)
 		}
 	}
-	
+
+	rollMutators(mutator1, mutator2, mutator3)
+}
+
+function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null, score = null, beEasier =  false) {
+	local choiceArray = []
+	choiceArray.extend(mutatorCategories)
+	activeMutators = []
+
+	mutator1 = "acceleratedDevelopment"
+
 	if(mutator1 != null) { //force mutators
 		activeMutators.append(mutator1)
 		if(mutator2 != null) {
@@ -248,37 +253,60 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		}
 	}
 	else { //roll mutators
-		for(local i = 0; i < RandomInt(1, 3); i++) {
-			local arrayVal = RandomInt(0, choiceArray.len() - 1)
-			local mutatorArray = choiceArray[arrayVal]
-			local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
-			
-			while(mutator in activeMutators) { //keep rerolling till we get a new one for generic mutators
-				mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+		local goodSet = false
+		local newScore = 0
+
+		while(!goodSet) {
+			for(local i = 0; i < RandomInt(1, 3); i++) {
+				local arrayVal = RandomInt(0, choiceArray.len() - 1)
+				local mutatorArray = choiceArray[arrayVal]
+				local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+
+				while(mutator in activeMutators) { //keep rerolling till we get a new one for generic mutators
+					mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+				}
+				activeMutators.append(mutator)
+
+				if(arrayVal != 0) { //if a nongeneric mutator, remove
+					choiceArray.remove(arrayVal)
+				}
+
+				score += descriptions[mutator].points
 			}
-			activeMutators.append(mutator)
-			
-			if(arrayVal != 0) { //if a nongeneric mutator, remove
-				choiceArray.remove(arrayVal)
+
+			if(score !=  null) {
+				if(beEasier && newScore < score) {
+					goodSet = true
+				}
+				else if(!beEasier && newScore > score) {
+					goodset = true
+				}
+			}
+			else {
+				goodSet = true
 			}
 		}
 	}
-	
+
+	finalizeMutators()
+}
+
+function mutators::finalizeMutators() {
 	ClientPrint(null, 3, "The mission's mutators are:")
 	foreach(mutator in activeMutators) {
 		ClientPrint(null, 3, descriptions[mutator].description)
 	}
-	
+
 	local playerManager = Entities.FindByClassname(null, "tf_player_manager")
 	for(local i = 1; i <= maxPlayers; i++) {
 		local player = PlayerInstanceFromIndex(i)
 		if(player == null) continue
-		
+
 		local scope = player.GetScriptScope()
-		
+
 		foreach(mutator in activeMutators) {
 			if(mutator in scope) {
-				scope.thinkFunctions[mutator] <- scope[mutator] //string, function 
+				scope.thinkFunctions[mutator] <- scope[mutator] //string, function
 			}
 		}
 		AddThinkToEnt(player, "think")
@@ -300,7 +328,6 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 		}
 	}
 	waveFailed = false
-	//to do: need to run one time non player functions somehow (make a specific array of them?)
 }
 
 //reset to default, dump everything
@@ -308,4 +335,128 @@ function mutators::cleanup() {
 	foreach(convar, val in convarsToReset) {
 		Convars.SetValue(convar, val)
 	}
+}
+
+function mutators::preButtonFuncsCleanup() {
+	for(local i = 1; i <= maxPlayers; i++) {
+		local player = PlayerInstanceFromIndex(i)
+		if(player == null) continue
+
+		local scope = player.GetScriptScope()
+
+		scope.thinkFunctions = {}
+		AddThinkToEnt(player, null)
+	}
+
+	//TODO: need to clean up outputs and the like as well
+}
+
+function mutators::changeDifficulty(beEasier) {
+	local currentScore = 0
+
+	preButtonFuncsCleanup()
+
+	foreach(mutator in activeMutators) {
+		currentScore += descriptions[mutator].points
+	}
+
+	rollMutators(null, null, null, currentScore, beEasier)
+}
+
+function mutators::reRandomize() {
+	preButtonFuncsCleanup()
+	rollMutators()
+}
+
+function mutators::changeSlot(slot) {
+	local mutator1 = null
+	local mutator2 = null
+	local mutator3 = null
+
+	local oldMutator = null
+
+	switch(activeMutators.len()) {
+		case 3:
+			mutator3 = activeMutators[2]
+		case 2:
+			mutator2 = activeMutators[1]
+		case 1:
+			mutator1 = activeMutators[0]
+			break
+	}
+	switch(slot) {
+		case 1:
+			oldMutator = mutator1
+			break;
+		case 2:
+			oldMutator = mutator2
+			break;
+		case 3:
+			oldMutator = mutator3
+			break;
+	}
+
+	//remove player sided from scope
+	if(oldMutator != null) {
+		for(local i = 1; i <= maxPlayers; i++) {
+			local player = PlayerInstanceFromIndex(i)
+			if(player == null) continue
+
+			local scope = player.GetScriptScope()
+
+			if(oldMutator in scope) {
+				delete scope.thinkFunctions[oldMutator]
+			}
+		}
+	}
+
+	local choiceArray = []
+	choiceArray.extend(mutatorCategories)
+
+	foreach(category in choiceArray) {
+		if(category == genericMutators) continue
+
+		local remove = false
+
+		//this sucks
+		if(mutator1 != oldMutator && mutator1 in category) {
+			remove = true
+		}
+		else if(mutator2 != oldMutator && mutator2 in category) {
+			remove = true
+		}
+		else if(mutator3 != oldMutator && mutator3 in category) {
+			remove = true
+		}
+
+		if(remove) {
+			choiceArray.remove(choiceArray.find(category))
+		}
+	}
+
+	//this is copy pasted from rollMutators, maybe should do something about that
+	local arrayVal = RandomInt(0, choiceArray.len() - 1)
+	local mutatorArray = choiceArray[arrayVal]
+	local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+
+	while(mutator in activeMutators) { //keep rerolling till we get a new one for generic mutators
+		mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+	}
+	activeMutators.append(mutator)
+
+	finalizeMutators()
+}
+
+function mutators::buttonPress(mutator) {
+	if(!buttonReset) {
+		preButtonFuncsCleanup()
+		activeMutators = []
+	}
+	buttonReset = true
+
+	if(activeMutators.len() < 3) {
+
+	}
+
+
 }
