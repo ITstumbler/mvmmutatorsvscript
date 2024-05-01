@@ -18,6 +18,15 @@ function mutators::OnGameEvent_recalculate_holidays(params) {
 			mutators[mutator]()
 		}
 	}
+
+	//wave failed
+	if(activeMutators.find("allOrNothing") != null) {
+		mutatorParams.allOrNothing_waveCurrency = 0
+		foreach(player in players) {
+			local scope = player.GetScriptScope()
+			scope.allOrNothingWavePenalty = 0
+		}
+	}
 }
 
 function mutators::OnGameEvent_mvm_mission_complete(params) {
@@ -26,9 +35,6 @@ function mutators::OnGameEvent_mvm_mission_complete(params) {
 }
 
 function mutators::OnGameEvent_mvm_wave_failed(params) {
-	if(activeMutators.find("allOrNothing") != null) {
-
-	}
 	waveFailed = true
 	if(activeMutators.find("protectTheCarrier") != null) {
 		EntFire("bomb_shield_prop", "kill")
@@ -43,6 +49,13 @@ function mutators::OnGameEvent_mvm_wave_complete(params) {
 	if(activeMutators.find("allOrNothing") != null) {
 		mutatorParams.allOrNothing_totalCurrency = mutatorParams.allOrNothing_totalCurrency 
 			+ mutatorParams.allOrNothing_waveCurrency
+			mutatorParams.allOrNothing_waveCurrency = 0
+
+		foreach(player in players) {
+			local scope = player.GetScriptScope()
+			scope.allOrNothingTotalPenalty += scope.allOrNothingWavePenalty
+			scope.allOrNothingWavePenalty = 0
+		}
 	}
 	if(activeMutators.find("protectTheCarrier") != null) {
 		EntFire("bomb_shield_prop", "kill")
@@ -417,6 +430,20 @@ function mutators::OnGameEvent_player_death(params) {
 	if(activeMutators.find("purifyingEmblem") != null || activeMutators.find("divineSeal") != null) {
 		EntFireByHandle(player, "DispatchEffect", "ParticleEffectStop", -1, player, player)
 	}
+}
+
+function mutators::mvm_pickup_currency(params) {
+	if(activeMutators.find("allOrNothing") == null) {
+		delete mutators.mvm_pickup_currency
+	} //this should work?
+
+	local currency = params.currency
+
+	foreach(player in players) {
+		player.AddCurrency(currency)
+	}
+
+	mutatorParams.allOrNothing_waveCurrency += currency
 }
 
 __CollectGameEventCallbacks(mutators)
