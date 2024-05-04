@@ -86,6 +86,10 @@ function mutators::OnGameEvent_player_spawn(params) {
 		
 		initPlayer(player)
 		AddThinkToEnt(player, "think")
+		
+		foreach(mutator in activeMutators) {
+			ClientPrint(player, 3, descriptions[mutator].description)
+		}
 	}
 
 	if(!waveFailed && GetRoundState() == GR_STATE_PREROUND && NetProps.GetPropInt(objResource, "m_nMannVsMachineWaveCount") == 1) return
@@ -331,6 +335,8 @@ function mutators::OnGameEvent_player_spawn(params) {
 
 function mutators::OnGameEvent_player_disconnect(params) {
 	local player = GetPlayerFromUserID(params.userid)
+	
+	if(player == null) return //dumb not fully connected player check
 	
 	delete players[player.GetEntityIndex()]
 }
