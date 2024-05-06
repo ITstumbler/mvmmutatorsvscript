@@ -19,9 +19,10 @@ mutators.buttonReset <- false
 
 //maybe rename
 mutators.genericMutators <- ["aggressiveMercs", "healthyFighters", "agileLegionnaires", "stockedUp", "bloodlust", "heavyBomb", "antisupport",
-	"americanHealthcare", "regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
-		"ourBenefactors", "allOrNothing", "offensiveFocus", "allOutOffense", "acceleratedDevelopment", "terrifyingTitans",
-		"rushdown", "deathWatch", "reinforcedMedics", "deepWounds", "protectTheCarrier", "septicTank", "tripleTrouble", "inflammableSkin"]
+	"regenerativeFactor", "guerillaWarfare", "critWeakness", "energySaving", "hatchGuard", "juggernaut",
+	"ourBenefactors", "allOrNothing", "offensiveFocus", "allOutOffense", "acceleratedDevelopment", "terrifyingTitans",
+	"rushdown", "deathWatch", "reinforcedMedics", "deepWounds", "protectTheCarrier", "septicTank", "tripleTrouble", "inflammableSkin"]
+//"americanHealthcare",
 
 mutators.meleeMutators <- ["honorboost", "robotsOfSteel"]
 
@@ -236,12 +237,19 @@ function mutators::initMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 	rollMutators(mutator1, mutator2, mutator3)
 }
 
-function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null, score = null, beEasier =  false) {
+function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = null, score = null, beEasier = false) {
+	local mutatorsMapped = {}
 	local choiceArray = []
-	choiceArray.extend(mutatorCategories)
+	foreach(category in mutatorCategories) {
+		foreach(mutator in category) {
+			mutatorsMapped.mutator <- category
+			choiceArray.extend(category)
+		}
+	}
+	//choiceArray.extend(mutatorCategories)
 	activeMutators = []
 
-	mutator1 = "acceleratedDevelopment"
+	//mutator1 = "acceleratedDevelopment"
 
 	if(mutator1 != null) { //force mutators
 		activeMutators.append(mutator1)
@@ -254,14 +262,33 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 	}
 	else { //roll mutators
 		local goodSet = false
-		local newScore = 0
 
 		while(!goodSet) {
+			local usedCategories = []
+			local newScore = 0
+			
 			for(local i = 0; i < RandomInt(1, 3); i++) {
-				local arrayVal = RandomInt(0, choiceArray.len() - 1)
-				local mutatorArray = choiceArray[arrayVal]
-				local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
-
+				local mutator = choiceArray[RandomInt(0, choiceArray.len() - 1)]
+				
+				if(mutatorsMapped.mutator != genericMutators) {
+					while(mutatorsMapped.mutator in usedCategories) {
+						mutator = choiceArray[RandomInt(0, choiceArray.len() - 1)]
+						//could possibly remove stuff to speed up search
+					}
+				}
+				else {
+					while(mutator in activeMutators) { //prevent genericmutators doubles
+						mutator = genericMutators[RandomInt(0, genericMutators.len() -1)]
+					}				
+				}
+				
+				activeMutators.append(mutator)
+				usedCategories.append(mutatorsMapped.mutator)
+				newScore += descriptions[mutator].points
+				//local mutatorArray = choiceArray[arrayVal]
+				//local mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
+				
+				/*
 				while(mutator in activeMutators) { //keep rerolling till we get a new one for generic mutators
 					mutator = mutatorArray[RandomInt(0, mutatorArray.len() - 1)]
 				}
@@ -270,11 +297,10 @@ function mutators::rollMutators(mutator1 = null, mutator2 = null, mutator3 = nul
 				if(arrayVal != 0) { //if a nongeneric mutator, remove
 					choiceArray.remove(arrayVal)
 				}
-
-				score += descriptions[mutator].points
+				*/
 			}
 
-			if(score !=  null) {
+			if(score != null) {
 				if(beEasier && newScore < score) {
 					goodSet = true
 				}

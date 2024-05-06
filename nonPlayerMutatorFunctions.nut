@@ -51,7 +51,7 @@ function mutators::forcefulHeadstart() {
 	}
 }
 
-function mutators::allOutOffense(bot) {
+function mutators::allOutOffenseApply(bot) {
 	if(bot.HasBotAttribute(ALWAYS_CRIT)) {
 		bot.AddCustomAttribute("damage penalty", mutatorParams.allOutOffense_damageMultiplier, -1)
 	}
@@ -65,7 +65,7 @@ function mutators::allOutOffense(bot) {
 	//adjustMaxHp(bot, 0.5, true)
 }
 
-function mutators::reinforcedMedics(bot) {
+function mutators::reinforcedMedicsApply(bot) {
 	if(bot.GetPlayerClass() != TF_CLASS_MEDIC) return
 	if(bot.IsMiniBoss()) {
 		bot.AddCustomAttribute("bot medic uber health threshold", mutatorParams.reinforcedMedics_giantUberDeploy, -1)
