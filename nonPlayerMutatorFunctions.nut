@@ -39,7 +39,7 @@ function mutators::sabotagedCircuits() {
 }
 
 function mutators::forcefulHeadstart() {
-	ClientPrint(null,3,"Henlo")
+	//ClientPrint(null,3,"Henlo")
 	local bluRespawn = null;
 	
 	//make sure uber doesn't conflict with 51
@@ -327,4 +327,42 @@ function mutators::purifyingEmblem() {
 		attachment_type = 6,
 		spawnflags = 1
 	})
+}
+
+function mutators::playerOpenDoor(activator) {
+	if(doorOpen) return
+	EntFireByHandle(activator, "AddContext", "IsOnCappableControlPoint:1", -1, null, null)
+	EntFireByHandle(activator, "SpeakResponseConcept", "TLK_PLAYER_HELP", -1, null, null)
+	playersOpeningDoor++
+	EmitSoundEx({
+        sound_name = "misc/doomsday_cap_close_start.wav"
+        volume = 1
+        origin = activator.GetOrigin()
+        filter_type = 4
+        entity = activator
+    })
+	if(playersOpeningDoor >= ceil((0.0 + players.len()) / 2)) {
+		openDoors()
+	}
+}
+
+function mutators::playerStopOpeningDoor(activator) {
+	if(doorOpen) return
+	EmitSoundEx({
+        sound_name = "misc/doomsday_cap_close_end.wav"
+        volume = 1
+        origin = activator.GetOrigin()
+        filter_type = 4
+        entity = activator
+    })
+	playersOpeningDoor--
+}
+
+function openDoors() {
+	doorOpen = true
+	EntFire("mutators_door","Disable")
+	EntFire("mutators_teleporter","Enable")
+	EntFire("mutators_door_explosion_particle","Start")
+	EntFire("mutators_door_open_sound","PlaySound")
+	
 }

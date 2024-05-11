@@ -11,6 +11,8 @@ mutators.objResource <- Entities.FindByClassname(null, "tf_objective_resource")
 mutators.players <- {}
 mutators.waveFailed <- false
 mutators.buttonReset <- false
+mutators.doorOpen <- false
+mutators.playersOpeningDoor <- 0
 
 // if(mutators.waveFailed) {
 // 	mutators.waveFailed = false
